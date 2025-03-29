@@ -2,9 +2,10 @@
 #include <map>
 #include "huffman.hpp"
 
-int main(){
-    Huffman h("test1");
-    h.encode("test1","test1.bin");
-    h.decode("test1.bin", "test1_dec");
+int main(int argc, char** argv){
+    Huffman h(argv[1]);
+    h.show_map();
+    h.encode(argv[1],(static_cast<std::string>(argv[1]))+".bin");
+    h.decode((static_cast<std::string>(argv[1]))+".bin", (static_cast<std::string>(argv[1]))+"_dec");
     return 0;
 }

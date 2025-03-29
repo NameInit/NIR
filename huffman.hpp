@@ -3,7 +3,6 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include <bitset>
 
 #include "data_io.hpp"
 
@@ -44,13 +43,11 @@ class Huffman{
         void __BuildTree(std::map<char, unsigned>& dict){
             std::vector<Node*> array;
             __root=nullptr;
-            int i=0;
             for(auto it=dict.begin(); it!=dict.end(); it++){
                 char buff[1]={it->first};
                 std::string string(buff);
                 Node* temp_node=new Node(string,it->second);
                 array.push_back(temp_node);
-                i++;
             }
             if(array.size()==0)
                 __root=nullptr;
@@ -87,6 +84,9 @@ class Huffman{
         }
 
         void __CreateMapSymbolCode(Node *node, std::string code){
+            if(__root==nullptr)
+                return ;
+
             if((node->left==nullptr)&&(node->right==nullptr)){
                 __symbol_code[node->str[0]]=code;
                 return ;
@@ -140,42 +140,66 @@ class Huffman{
             return ;
         }
 
-        int encode(const std::string& filename_in, const std::string& filename_out){
-            if(__symbol_code.size()==0)
-                return 1;
-            
+        int encode(const std::string& filename_in, const std::string& filename_out){            
             DataFile file_in(filename_in, std::ios::in);
             DataFile file_out(filename_out, std::ios::out | std::ios::binary);
 
+            auto strbin_to_int = [](const std::string& str){
+                unsigned num=0; 
+                for(char symbol : str)
+                    num=num*2+(symbol=='1');
+                return num;
+            };
             std::string buffer;
 
             while(file_in.get_next_symbol()!=-1){
                 buffer+=__symbol_code[file_in.get_cur_symbol()];
                 if(buffer.size()>=8){
-                    file_out.write(static_cast<std::bitset<8>> (buffer.substr(0,8)).to_ulong());
+                    file_out.write(strbin_to_int(buffer.substr(0,8)));
                     buffer=buffer.substr(8,buffer.size()-1);
                 }
             }
-            file_out.write(static_cast<std::bitset<8>> (buffer.substr(0,8)).to_ulong());
+            if(buffer.size()!=0){
+                file_out.write('\0');
+                file_out.write(buffer.size());
+                file_out.write(strbin_to_int(buffer.substr(0,buffer.size())));
+            }
             return 0;
         }
 
         int decode(const std::string& filename_in, const std::string& filename_out){
-            if(__symbol_code.size()==0)
-                return 1;
-
             DataFile file_in(filename_in, std::ios::in | std::ios::binary);
             DataFile file_out(filename_out, std::ios::out);
+
+            auto int_to_strbin = [](unsigned num, unsigned count_bit){
+                std::string strbin;
+                while(num>0){
+                    strbin=(char)(num%2+'0')+strbin;
+                    num/=2;
+                }
+                if(strbin.size()<count_bit)
+                    strbin = std::string("0",count_bit-strbin.size()) + strbin;
+                return strbin;
+            };
 
             std::string data_file_in;
             std::string temp_data;
             std::map<std::string, unsigned> code_symbol;
+            unsigned max_size_code=0;
+            bool done=0;
 
-            for(auto it=__symbol_code.begin(); it!=__symbol_code.end(); it++)
+            for(auto it=__symbol_code.begin(); it!=__symbol_code.end(); it++){
                 code_symbol[it->second]=it->first;
+                max_size_code=(max_size_code<(it->second).size()) ? (it->second).size() : max_size_code;
+            }
 
-            while((file_in.get_next_symbol())!=-1)
-                data_file_in+=static_cast<std::bitset<8>> (file_in.get_cur_symbol()).to_string();
+            while((file_in.get_next_symbol())>0)
+                data_file_in+=int_to_strbin(file_in.get_cur_symbol(),8);
+
+            if(file_in.get_cur_symbol()==0){
+                unsigned count_bit=file_in.get_next_symbol();
+                data_file_in+=int_to_strbin(file_in.get_next_symbol(),count_bit);
+            }
 
             for(char bit : data_file_in){
                 temp_data+=bit;
@@ -183,9 +207,13 @@ class Huffman{
                     file_out.write(code_symbol[temp_data]);
                     temp_data.clear();
                 }
+                else if(temp_data.size()>max_size_code){
+                    done=1;
+                    break;
+                }
             }
 
-            return 0;
+            return done;
         }
 
         void show_map(){

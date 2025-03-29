@@ -1,5 +1,5 @@
 main:
-	g++ huffman.cpp
+	g++ main.cpp
 
 
 memory:

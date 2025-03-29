@@ -63,4 +63,13 @@ class DataFile{
                 throw std::logic_error("File is not open");
             __file.put(symbol);
         }
+
+        unsigned size(){
+            unsigned position = __file.tellg();
+            unsigned size;
+            __file.seekg(0, __file.end);
+            size=__file.tellg();
+            __file.seekg(position, __file.beg);
+            return size;
+        }
 };
