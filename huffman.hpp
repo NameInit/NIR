@@ -3,10 +3,11 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <set>
 
 #include "data_io.hpp"
 
-#define SHOW_MAP(mymap) for(auto it=mymap.begin(); it!=mymap.end(); it++) std::cout << '(' << it->first << ", " << it->second << ") "; std::cout << std::endl;
+#define SHOW_MAP(mymap) std::set<char> uv{'\n','\r'}; for(auto it=mymap.begin(); it!=mymap.end(); it++) {std::cout << '('; if(uv.find(it->first)!=uv.end()) std::cout<<'\''<<(unsigned)it->first<<'\''; else  std::cout<<it->first;std::cout<< ", " << it->second << ") ";} std::cout << std::endl;
 #define SHOW_VECTOR_NODES(myvector) for(auto it=myvector.begin(); it!=myvector.end(); it++) std::cout<<**it<<' ';std::cout<<std::endl;
 
 
@@ -23,7 +24,15 @@ class Huffman{
             int operator<(const Node& other) { return frequency<other.frequency; }
             
             friend std::ostream& operator<<(std::ostream& out, const Node& other){
-                out<<'('<<other.str<<", "<<other.frequency<<')';
+                out<<'(';
+                std::set<char> uv{'\n','\r'};
+                for(char symbol : other.str){
+                    if(uv.find(symbol)!=uv.end())
+                        out<<'\''<<(unsigned)symbol << '\'';
+                    else
+                        out << symbol;
+                }
+                out<<", "<<other.frequency<<')';
                 return out;
             }
         }Node;
@@ -97,8 +106,16 @@ class Huffman{
 
         void __CreateMapSymbolFrequency(const std::string& filename){
             DataFile file(filename, std::ios::in);
-            while((file.get_next_symbol())!=-1)
+            while((file.get_next_symbol())!=-1){
                 __symbol_frequency[file.get_cur_symbol()]+=1;
+            }
+            // std::cout << std::endl;
+            // std::cout << "Коретка: " << __symbol_frequency['\r']  << std::endl;
+            // std::cout << "\\n: " << __symbol_frequency['\n'] << std::endl;
+            // std::cout << __symbol_frequency.size() << std::endl;
+            // for(auto it = __symbol_frequency.begin(); it!=__symbol_frequency.end(); it++)
+            //     std::cout << it->first << ";" << it->second << ' ';
+            // std::cout << std::endl;
         }
     public:
         Huffman() : __root(nullptr) {}
@@ -156,13 +173,16 @@ class Huffman{
                 buffer+=__symbol_code[file_in.get_cur_symbol()];
                 if(buffer.size()>=8){
                     file_out.write(strbin_to_int(buffer.substr(0,8)));
-                    buffer=buffer.substr(8,buffer.size()-1);
+                    buffer=buffer.substr(8,buffer.size());
                 }
             }
             if(buffer.size()!=0){
-                file_out.write('\0');
                 file_out.write(buffer.size());
-                file_out.write(strbin_to_int(buffer.substr(0,buffer.size())));
+                file_out.write(strbin_to_int(buffer));
+            }
+            else{
+                file_out.write(0);
+                file_out.write(0);
             }
             return 0;
         }
@@ -177,27 +197,28 @@ class Huffman{
                     strbin=(char)(num%2+'0')+strbin;
                     num/=2;
                 }
-                if(strbin.size()<count_bit)
-                    strbin = std::string("0",count_bit-strbin.size()) + strbin;
+                while(strbin.size()<count_bit){
+                    strbin=(char)(num%2+'0')+strbin;
+                }
                 return strbin;
             };
-
             std::string data_file_in;
             std::string temp_data;
             std::map<std::string, unsigned> code_symbol;
             unsigned max_size_code=0;
+            unsigned size_file=file_in.size();
             bool done=0;
 
             for(auto it=__symbol_code.begin(); it!=__symbol_code.end(); it++){
                 code_symbol[it->second]=it->first;
                 max_size_code=(max_size_code<(it->second).size()) ? (it->second).size() : max_size_code;
             }
+            
+            for(int i=0; i<size_file-2; i++)
+                data_file_in+=int_to_strbin(file_in.get_next_symbol(),8);
 
-            while((file_in.get_next_symbol())>0)
-                data_file_in+=int_to_strbin(file_in.get_cur_symbol(),8);
-
-            if(file_in.get_cur_symbol()==0){
-                unsigned count_bit=file_in.get_next_symbol();
+            if(file_in.get_next_symbol()!=0){
+                unsigned count_bit=file_in.get_cur_symbol();
                 data_file_in+=int_to_strbin(file_in.get_next_symbol(),count_bit);
             }
 
@@ -216,7 +237,11 @@ class Huffman{
             return done;
         }
 
-        void show_map(){
+        void show_map_code(){
             SHOW_MAP(__symbol_code);
+        }
+
+        void show_map_frequency(){
+            SHOW_MAP(__symbol_frequency);
         }
 };
