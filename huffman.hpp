@@ -95,6 +95,11 @@ class Huffman{
         void __CreateMapSymbolCode(Node *node, std::string code){
             if(__root==nullptr)
                 return ;
+            if(__root!=nullptr && __root->left==nullptr && __root->right==nullptr){
+                __symbol_code[__root->str[0]]="0";
+                return;
+            }
+
 
             if((node->left==nullptr)&&(node->right==nullptr)){
                 __symbol_code[node->str[0]]=code;
