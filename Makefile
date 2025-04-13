@@ -1,14 +1,14 @@
 main:
 	g++ main.cpp
 
-run:
+run: main
 	./a.out test1
 
 make test: main
 	./test.sh
 
 memory:
-	valgrind --leak-check=full ./a.out tests/test1
+	valgrind --leak-check=full ./a.out test1
 
 clean:
 	rm -rf *_dec *.bin a.out tests/*.dec tests/*.bin

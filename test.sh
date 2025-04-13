@@ -14,7 +14,7 @@ if [ -d "$DIRECTORY" ]; then
                 break  # Выходим из цикла при обнаружении различий
             fi
             
-            rm tests/$(basename "$FILE").dec tests/$(basename "$FILE").bin
+            rm tests/$(basename "$FILE").dec tests/$(basename "$FILE").huff
         fi
     done
 else

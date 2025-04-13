@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 
+#include "timer.hpp"
 #include "data_io.hpp"
 
 #define SHOW_MAP(mymap) std::set<char> uv{'\n','\r'}; for(auto it=mymap.begin(); it!=mymap.end(); it++) {std::cout << '('; if(uv.find(it->first)!=uv.end()) std::cout<<'\''<<(unsigned)it->first<<'\''; else  std::cout<<it->first;std::cout<< ", " << it->second << ") ";} std::cout << std::endl;
@@ -37,9 +38,27 @@ class Huffman{
             }
         }Node;
 
+        typedef struct Times{
+            Timer encode;
+            Timer decode;
+            Timer init;
+        }Times;
+
+        typedef struct Filename{
+            std::string base;
+            std::string binary;
+            std::string unzipped;
+        }Filename;
+
         Node *__root;
         std::map<char, std::string> __symbol_code;
         std::map<char, unsigned> __symbol_frequency;
+        Times __time;
+        Filename __filename;
+
+        void __StartTime(Timer& timer) { timer.set_start(); }
+        void __EndTime(Timer& timer) { timer.set_end(); }
+        void __SetFileName(std::string& old_filename, const std::string& new_filename) { old_filename=new_filename; }
 
         void __DestroyTree(Node* node){
             if(node!=nullptr){
@@ -114,25 +133,23 @@ class Huffman{
             while((file.get_next_symbol())!=-1){
                 __symbol_frequency[file.get_cur_symbol()]+=1;
             }
-            // std::cout << std::endl;
-            // std::cout << "Коретка: " << __symbol_frequency['\r']  << std::endl;
-            // std::cout << "\\n: " << __symbol_frequency['\n'] << std::endl;
-            // std::cout << __symbol_frequency.size() << std::endl;
-            // for(auto it = __symbol_frequency.begin(); it!=__symbol_frequency.end(); it++)
-            //     std::cout << it->first << ";" << it->second << ' ';
-            // std::cout << std::endl;
         }
     public:
         Huffman() : __root(nullptr) {}
         Huffman(const std::string& filename) {
+            __StartTime(__time.init);
+            __SetFileName(__filename.base, filename);
             __CreateMapSymbolFrequency(filename);
             __BuildTree(__symbol_frequency);
             __CreateMapSymbolCode(__root, "");
+            __EndTime(__time.init);
         }
 
         ~Huffman(){ __DestroyTree(__root); __symbol_code.clear(); __symbol_frequency.clear(); }
 
         void init(const std::string& filename){
+            __StartTime(__time.init);
+            __SetFileName(__filename.base, filename);
             if(__root!=nullptr){
                 __DestroyTree(__root); 
                 __symbol_code.clear(); 
@@ -141,6 +158,7 @@ class Huffman{
             __CreateMapSymbolFrequency(filename);
             __BuildTree(__symbol_frequency);
             __CreateMapSymbolCode(__root, 0);
+			__EndTime(__time.init);
         }
 
         void show_tree(){
@@ -163,7 +181,10 @@ class Huffman{
         }
 
         int encode(const std::string& filename_in, const std::string& filename_out){            
-            DataFile file_in(filename_in, std::ios::in);
+            __StartTime(__time.encode);
+			__SetFileName(__filename.base,filename_in);
+			__SetFileName(__filename.binary,filename_out);
+			DataFile file_in(filename_in, std::ios::in);
             DataFile file_out(filename_out, std::ios::out | std::ios::binary);
 
             auto strbin_to_int = [](const std::string& str){
@@ -189,10 +210,14 @@ class Huffman{
                 file_out.write(0);
                 file_out.write(0);
             }
+			__EndTime(__time.encode);
             return 0;
         }
 
         int decode(const std::string& filename_in, const std::string& filename_out){
+			__StartTime(__time.decode);
+			__SetFileName(__filename.binary, filename_in);
+			__SetFileName(__filename.unzipped, filename_out);
             DataFile file_in(filename_in, std::ios::in | std::ios::binary);
             DataFile file_out(filename_out, std::ios::out);
 
@@ -238,7 +263,7 @@ class Huffman{
                     break;
                 }
             }
-
+			__EndTime(__time.decode);
             return done;
         }
 
@@ -249,4 +274,35 @@ class Huffman{
         void show_map_frequency(){
             SHOW_MAP(__symbol_frequency);
         }
+        
+		void show_statistic(){
+			auto get_percent_diff_byte_in_files = [](DataFile& file1, DataFile& file2){
+				unsigned count=0;
+				unsigned offset=0;
+				while((file1.get_next_symbol()!=-1)&&(file2.get_next_symbol()!=-1)){
+					if(file1.get_cur_symbol()!=file2.get_cur_symbol()) ++count;
+					++offset;
+				}
+				if((file1.get_next_symbol()!=-1)||(file2.get_next_symbol()!=-1)){
+					count+=(file1.size()>file2.size() ? file1.size() : file2.size())-offset;
+				}
+				return ((double)(file1.size()>file2.size() ? file1.size() : file2.size() - count))/((double)(file1.size()>file2.size() ? file1.size() : file2.size()))*100.;
+			};
+
+			DataFile file_base(__filename.base, std::ios::in);
+			DataFile file_binary(__filename.binary, std::ios::in);
+			DataFile file_unzipped(__filename.unzipped, std::ios::in);
+
+			std::cout << "-----------------STATISTIC HUFFMAN-----------------" << std::endl;
+			std::cout << "START FILE: " << __filename.base << '(' << file_base.size() << " bytes" <<')' << std::endl;
+			std::cout << "ARCHIVED FILE: " << __filename.binary << '(' << file_binary.size() << " bytes" <<')' << std::endl;
+			std::cout << "UNZIPPED FILE: " << __filename.unzipped << '(' << file_unzipped.size() << " bytes" <<')' << std::endl << std::endl;
+
+			std::cout << "TIME FOR ARCHIVING: " << __time.decode.duration_s() +  __time.init.duration_s() << "s (" << __time.init.duration_s() << "s spent for creating dict)" << std::endl;
+			std::cout << "TIME FOR UNZIPPED: " << __time.decode.duration_s() << 's' << std::endl << std::endl;
+
+			std::cout << "COMPRESSION RATIO: " << (double)file_base.size()/(double)file_binary.size() << std::endl;
+			std::cout << "INTEGRITY: " << get_percent_diff_byte_in_files(file_base,file_unzipped) << '%' << std::endl;
+			std::cout << "------------------------END------------------------" << std::endl;
+		}
 };
