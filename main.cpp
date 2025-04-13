@@ -1,6 +1,5 @@
 #include "huffman.hpp"
-#include <thread>
-#include <chrono>
+#include "lz77.hpp"
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -8,11 +7,12 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    Huffman h(argv[1]);
-    Timer run_code;
+    LZ77 lz(100, 100);
+    lz.encode(argv[1], (static_cast<std::string>(argv[1])) + ".lz77");
 
-    h.encode(argv[1], (static_cast<std::string>(argv[1])) + ".huff");
-    h.decode((static_cast<std::string>(argv[1]))  + ".huff", (static_cast<std::string>(argv[1])) + ".dec");
-    h.show_statistic();
+    // Huffman h(argv[1]);
+    // h.encode(argv[1], (static_cast<std::string>(argv[1])) + ".huff");
+    // h.decode((static_cast<std::string>(argv[1]))  + ".huff", (static_cast<std::string>(argv[1])) + ".dec");
+    // h.show_statistic();
     return 0;
 }

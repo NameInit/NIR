@@ -5,14 +5,14 @@
 #include <vector>
 #include <set>
 
-#include "timer.hpp"
 #include "data_io.hpp"
+#include "algs_compression.hpp"
 
 #define SHOW_MAP(mymap) std::set<char> uv{'\n','\r'}; for(auto it=mymap.begin(); it!=mymap.end(); it++) {std::cout << '('; if(uv.find(it->first)!=uv.end()) std::cout<<'\''<<(unsigned)it->first<<'\''; else  std::cout<<it->first;std::cout<< ", " << it->second << ") ";} std::cout << std::endl;
 #define SHOW_VECTOR_NODES(myvector) for(auto it=myvector.begin(); it!=myvector.end(); it++) std::cout<<**it<<' ';std::cout<<std::endl;
 
 
-class Huffman{
+class Huffman : public AlgsCompression{
     private:
         typedef struct Node{
             std::string str;
@@ -38,27 +38,9 @@ class Huffman{
             }
         }Node;
 
-        typedef struct Times{
-            Timer encode;
-            Timer decode;
-            Timer init;
-        }Times;
-
-        typedef struct Filename{
-            std::string base;
-            std::string binary;
-            std::string unzipped;
-        }Filename;
-
         Node *__root;
         std::map<char, std::string> __symbol_code;
         std::map<char, unsigned> __symbol_frequency;
-        Times __time;
-        Filename __filename;
-
-        void __StartTime(Timer& timer) { timer.set_start(); }
-        void __EndTime(Timer& timer) { timer.set_end(); }
-        void __SetFileName(std::string& old_filename, const std::string& new_filename) { old_filename=new_filename; }
 
         void __DestroyTree(Node* node){
             if(node!=nullptr){
@@ -274,35 +256,4 @@ class Huffman{
         void show_map_frequency(){
             SHOW_MAP(__symbol_frequency);
         }
-        
-		void show_statistic(){
-			auto get_percent_diff_byte_in_files = [](DataFile& file1, DataFile& file2){
-				unsigned count=0;
-				unsigned offset=0;
-				while((file1.get_next_symbol()!=-1)&&(file2.get_next_symbol()!=-1)){
-					if(file1.get_cur_symbol()!=file2.get_cur_symbol()) ++count;
-					++offset;
-				}
-				if((file1.get_next_symbol()!=-1)||(file2.get_next_symbol()!=-1)){
-					count+=(file1.size()>file2.size() ? file1.size() : file2.size())-offset;
-				}
-				return ((double)(file1.size()>file2.size() ? file1.size() : file2.size() - count))/((double)(file1.size()>file2.size() ? file1.size() : file2.size()))*100.;
-			};
-
-			DataFile file_base(__filename.base, std::ios::in);
-			DataFile file_binary(__filename.binary, std::ios::in);
-			DataFile file_unzipped(__filename.unzipped, std::ios::in);
-
-			std::cout << "-----------------STATISTIC HUFFMAN-----------------" << std::endl;
-			std::cout << "START FILE: " << __filename.base << '(' << file_base.size() << " bytes" <<')' << std::endl;
-			std::cout << "ARCHIVED FILE: " << __filename.binary << '(' << file_binary.size() << " bytes" <<')' << std::endl;
-			std::cout << "UNZIPPED FILE: " << __filename.unzipped << '(' << file_unzipped.size() << " bytes" <<')' << std::endl << std::endl;
-
-			std::cout << "TIME FOR ARCHIVING: " << __time.decode.duration_s() +  __time.init.duration_s() << "s (" << __time.init.duration_s() << "s spent for creating dict)" << std::endl;
-			std::cout << "TIME FOR UNZIPPED: " << __time.decode.duration_s() << 's' << std::endl << std::endl;
-
-			std::cout << "COMPRESSION RATIO: " << (double)file_base.size()/(double)file_binary.size() << std::endl;
-			std::cout << "INTEGRITY: " << get_percent_diff_byte_in_files(file_base,file_unzipped) << '%' << std::endl;
-			std::cout << "------------------------END------------------------" << std::endl;
-		}
 };
