@@ -48,12 +48,12 @@ class AlgsCompression{
 			DataFile file_binary(__filename.binary, std::ios::in);
 			DataFile file_unzipped(__filename.unzipped, std::ios::in);
 
-			std::cout << "-----------------STATISTIC HUFFMAN-----------------" << std::endl;
+			std::cout << "---------------STATISTIC COMPRESSION---------------" << std::endl;
 			std::cout << "START FILE: " << __filename.base << '(' << file_base.size() << " bytes" <<')' << std::endl;
 			std::cout << "ARCHIVED FILE: " << __filename.binary << '(' << file_binary.size() << " bytes" <<')' << std::endl;
 			std::cout << "UNZIPPED FILE: " << __filename.unzipped << '(' << file_unzipped.size() << " bytes" <<')' << std::endl << std::endl;
 
-			std::cout << "TIME FOR ARCHIVING: " << __time.decode.duration_s() +  __time.init.duration_s() << "s (" << __time.init.duration_s() << "s spent for creating dict)" << std::endl;
+			std::cout << "TIME FOR ARCHIVING: " << __time.decode.duration_s() +  __time.init.duration_s() << 's' << std::endl;
 			std::cout << "TIME FOR UNZIPPED: " << __time.decode.duration_s() << 's' << std::endl << std::endl;
 
 			std::cout << "COMPRESSION RATIO: " << (double)file_base.size()/(double)file_binary.size() << std::endl;

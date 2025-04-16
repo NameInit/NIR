@@ -7,8 +7,16 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-    LZ77 lz(100, 100);
+    LZ77 lz(10, 10);
     lz.encode(argv[1], (static_cast<std::string>(argv[1])) + ".lz77");
+    lz.decode((static_cast<std::string>(argv[1])) + ".lz77", (static_cast<std::string>(argv[1])) + ".dec");
+	lz.show_statistic();
+	// DataFile b((static_cast<std::string>(argv[1])) + ".lz77", std::ios::in | std::ios::binary);
+	// while(b.get_next_symbol()!=-1){
+	// 	std::cout << b.get_cur_symbol() << ' ';
+	// 	if(b.get_next_symbol()!=-1)std::cout << b.get_cur_symbol() << ' ';
+	// 	if(b.get_next_symbol()!=-1)std::cout << (char)b.get_cur_symbol() << ' ';
+	// }
 
     // Huffman h(argv[1]);
     // h.encode(argv[1], (static_cast<std::string>(argv[1])) + ".huff");

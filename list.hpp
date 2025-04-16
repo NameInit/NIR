@@ -5,7 +5,7 @@
 
 template<typename Item>
 class List{
-	public:
+	private:
 		typedef struct Node{
 			Item __item;
 			Node *__right;
@@ -127,7 +127,7 @@ class List{
 			return __size;
 		}
 
-		void clear(){
+		void free(){
 			Node *temp=__begin;
 			while(temp!=nullptr){
 				temp=__begin->__right;
@@ -147,6 +147,30 @@ class List{
             }
             std::cout<<']'<<std::endl;
         }
+
+        class Iterator{
+            private:
+                List<Item> *__list;
+                Node *__node;
+
+                Iterator(List<Item> *list, Node *node) : __list(list), __node(node) {}
+            public:
+                using value_type =Item;
+                using reference = value_type&;
+
+                Iterator& operator++(){ if(__node!=nullptr) __node=__node->__right; return *this; }
+
+                bool operator!=(const Iterator& other) { return __node!=other.__node; }
+                bool operator==(const Iterator& other) { return __node==other.__node; }
+
+                reference operator*(){ return __node->__item; }
+
+                friend List<Item>::Iterator List<Item>::begin();
+                friend List<Item>::Iterator List<Item>::end();
+        };
+
+        Iterator begin(){ return Iterator(this, __begin); }
+        Iterator end(){ return Iterator(this, nullptr); }
 
         friend std::ostream& operator<<(std::ostream& out, const List& other){
             out << '[';
