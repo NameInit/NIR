@@ -159,6 +159,7 @@ class List{
                 using reference = value_type&;
 
                 Iterator& operator++(){ if(__node!=nullptr) __node=__node->__right; return *this; }
+                Iterator& operator--(){ if(__node!=nullptr) __node=__node->__left; return *this; }
 
                 bool operator!=(const Iterator& other) { return __node!=other.__node; }
                 bool operator==(const Iterator& other) { return __node==other.__node; }

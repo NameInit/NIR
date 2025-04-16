@@ -24,7 +24,10 @@ class LZ77 : public AlgsCompression{
 				__len_buffer_in=len_buffer_in;
 				__len_buffer_out=len_buffer_out;
 			}
-			std::cout << __len_buffer_in << ' ' << __len_buffer_out << std::endl;
+			#ifdef DEBUG
+			std::cout << "LEN_IN: " << __len_buffer_in << std::endl;
+			std::cout << "LEN_OUT: " << __len_buffer_out << std::endl;
+			#endif
 		}
 
 		void init(int len_buffer_in, int len_buffer_out){
@@ -35,6 +38,9 @@ class LZ77 : public AlgsCompression{
 		}
 		
         int encode(const std::string& filename_in, const std::string& filename_out) {
+			#ifdef DEBUG
+			std::cout << "-----------START ENCODE-----------" << std::endl;
+			#endif
 			__StartTime(__time.encode);
 			__SetFileName(__filename.base,filename_in);
 			__SetFileName(__filename.binary,filename_out);
@@ -106,17 +112,64 @@ class LZ77 : public AlgsCompression{
 				while(buff_out.size()>__len_buffer_out) buff_out.pop(0);
 			}
 			__EndTime(__time.encode);
+			#ifdef DEBUG
+			std::cout << "------------END ENCODE------------" << std::endl;
+			#endif
 			return 0;
 		}
 
         int decode(const std::string& filename_in, const std::string& filename_out) {
+			#ifdef DEBUG
+			std::cout << "-----------START DECODE-----------" << std::endl;
+			#endif
 			__StartTime(__time.decode);
 			__SetFileName(__filename.binary, filename_in);
 			__SetFileName(__filename.unzipped, filename_out);
 			DataFile file_in(filename_in, std::ios::in | std::ios::binary);
 			DataFile file_out(filename_out, std::ios::out);
-			
-			__EndTime(__time.decode);		
+			List<char> buffer_out;
+			auto it_out=buffer_out.begin();
+			while(file_in.get_next_symbol()!=-1){
+				unsigned offset = file_in.get_cur_symbol();
+				unsigned len_subject_str = file_in.get_next_symbol();
+				#ifdef DEBUG
+				SHOW_LIST(buffer_out);
+				std::cout << std::endl << "OFFSET: " << offset << std::endl;
+				std::cout << "LEN: " << len_subject_str << std::endl;
+				std::cout << "STRING: ";
+				#endif
+				if(offset!=0){
+					it_out=buffer_out.begin();
+					for(int i=0; i!=(buffer_out.size()-offset); i++) ++it_out;
+					for(int i=0; i!=len_subject_str; i++) {
+						#ifdef DEBUG
+						if(*it_out<=13)
+							std::cout << '\'' << (unsigned)(*it_out) << '\'';
+						else
+							std::cout << *it_out;
+						#endif
+						buffer_out.append(*it_out); ++it_out;
+					}
+				}
+				if(file_in.get_next_symbol()!=-1) {
+					#ifdef DEBUG
+					if(file_in.get_cur_symbol()<=13)
+						std::cout << '\'' << (unsigned)(file_in.get_cur_symbol()) << '\'';
+					else
+						std::cout << file_in.get_cur_symbol();
+					#endif
+					buffer_out.append(file_in.get_cur_symbol());
+				}
+				#ifdef DEBUG
+				std::cout << std::endl << std::endl;
+				#endif
+				while(buffer_out.size()>__len_buffer_in) file_out.write(buffer_out.pop(0));
+			}
+			while(buffer_out.size()!=0) file_out.write(buffer_out.pop(0));
+			__EndTime(__time.decode);
+			#ifdef DEBUG
+			std::cout << "------------END DECODE------------" << std::endl;
+			#endif
 			return 0;
 		}
 };

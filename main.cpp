@@ -11,16 +11,10 @@ int main(int argc, char** argv) {
     lz.encode(argv[1], (static_cast<std::string>(argv[1])) + ".lz77");
     lz.decode((static_cast<std::string>(argv[1])) + ".lz77", (static_cast<std::string>(argv[1])) + ".dec");
 	lz.show_statistic();
-	// DataFile b((static_cast<std::string>(argv[1])) + ".lz77", std::ios::in | std::ios::binary);
-	// while(b.get_next_symbol()!=-1){
-	// 	std::cout << b.get_cur_symbol() << ' ';
-	// 	if(b.get_next_symbol()!=-1)std::cout << b.get_cur_symbol() << ' ';
-	// 	if(b.get_next_symbol()!=-1)std::cout << (char)b.get_cur_symbol() << ' ';
-	// }
 
-    // Huffman h(argv[1]);
-    // h.encode(argv[1], (static_cast<std::string>(argv[1])) + ".huff");
-    // h.decode((static_cast<std::string>(argv[1]))  + ".huff", (static_cast<std::string>(argv[1])) + ".dec");
-    // h.show_statistic();
+    Huffman h(argv[1]);
+    h.encode(argv[1], (static_cast<std::string>(argv[1])) + ".huff");
+    h.decode((static_cast<std::string>(argv[1]))  + ".huff", (static_cast<std::string>(argv[1])) + ".dec");
+    h.show_statistic();
     return 0;
 }
