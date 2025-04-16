@@ -1,13 +1,23 @@
-main:
-	g++ -std=c++11 main.cpp
+COMPILE=g++ -std=c++11
+DEBUG=-DDEBUG
+WITH_STEP=-DDEBUG_STEP
 
-run: main
+main: main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp data_io.hpp
+	$(COMPILE) main.cpp
+
+run:
 	./a.out test1
 
-make test: main
+test:
 	./test.sh
 
-memory:
+debug: main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp data_io.hpp
+	$(COMPILE) $(DEBUG) main.cpp
+
+debug_step:	main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp data_io.hpp
+	$(COMPILE) $(DEBUG) $(WITH_STEP) main.cpp
+
+memory: main
 	valgrind --leak-check=full ./a.out test1
 
 clean:

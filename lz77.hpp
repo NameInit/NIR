@@ -6,15 +6,26 @@
 #include "data_io.hpp"
 #include "list.hpp"
 
+#ifdef DEBUG
 #define SHOW_LIST(list) {std::set<char> uv{'\n','\r'}; std::cout << '['; int i=0; for(auto it=list.begin(); it!=list.end(); ++it, ++i){if(uv.find(*it)!=uv.end()) std::cout<<"\'"<<(unsigned)*it<<"\'"; else std::cout<<*it; if((i+1)!=list.size()) std::cout << ", ";} std::cout<<']';}
+#endif
 
 class LZ77 : public AlgsCompression{
 	private:
-		unsigned __len_buffer_in;
-		unsigned __len_buffer_out;
+		unsigned __len_buffer_in=255;
+		unsigned __len_buffer_out=255;
+		int __CheckParam(int len){
+			return (1<=len)&&(len<=255);
+		}
 	public:
 		LZ77() {} 
-		LZ77(int len_buffer_in, int len_buffer_out) : __len_buffer_in(len_buffer_in), __len_buffer_out(len_buffer_out) {  }
+		LZ77(int len_buffer_in, int len_buffer_out) {
+			if(__CheckParam(len_buffer_in) && __CheckParam(len_buffer_out)){
+				__len_buffer_in=len_buffer_in;
+				__len_buffer_out=len_buffer_out;
+			}
+			std::cout << __len_buffer_in << ' ' << __len_buffer_out << std::endl;
+		}
 
 		void init(int len_buffer_in, int len_buffer_out){
 			__StartTime(__time.init);
@@ -61,26 +72,37 @@ class LZ77 : public AlgsCompression{
 					}
 					--temp_offset;
 				}
-				// SHOW_LIST(buff_out);
-				// SHOW_LIST(buff_in);
-				// std::cout << std::endl << "LEN: " << len_subject_str << std::endl;
-				// std::cout << "OFFSET: " << offset << std::endl;
-				// std::cout << "LEN_OUT: " << buff_out.size() << std::endl << std::endl;
+				#ifdef DEBUG
+				SHOW_LIST(buff_out);
+				SHOW_LIST(buff_in);
+				std::cout << std::endl << "LEN: " << len_subject_str << std::endl;
+				std::cout << "OFFSET: " << offset << std::endl;
+				std::cout << "LEN_OUT: " << buff_out.size() << std::endl;
+				#endif
 				file_out.write(offset);
 				file_out.write(len_subject_str);
-				// std::cout << '(' << offset << ", " << len_subject_str;
+				#ifdef DEBUG
+				std::cout << '(' << offset << ", " << len_subject_str;
+				#endif
 				for(int i=0; i<len_subject_str; i++){
 					buff_out.append(buff_in.pop(0));
 					if(file_in.get_next_symbol()!=-1) buff_in.append(file_in.get_cur_symbol());
 				}
 				if(buff_in.size()!=0){
 					char temp_item=buff_in.pop(0);
-					// std::cout << ", " << temp_item;
+					#ifdef DEBUG
+					std::cout << ", " << temp_item;
+					#endif
 					file_out.write(temp_item);
 					buff_out.append(temp_item);
 					if(file_in.get_next_symbol()!=-1) buff_in.append(file_in.get_cur_symbol());
 				}
-				// std::cout << ')' << std::endl;
+				#ifdef DEBUG
+				std::cout << ')' << std::endl << std::endl;
+				#ifdef DEBUG_STEP
+				getchar();
+				#endif
+				#endif
 				while(buff_out.size()>__len_buffer_out) buff_out.pop(0);
 			}
 			__EndTime(__time.encode);
@@ -93,7 +115,7 @@ class LZ77 : public AlgsCompression{
 			__SetFileName(__filename.unzipped, filename_out);
 			DataFile file_in(filename_in, std::ios::in | std::ios::binary);
 			DataFile file_out(filename_out, std::ios::out);
-
+			
 			__EndTime(__time.decode);		
 			return 0;
 		}
