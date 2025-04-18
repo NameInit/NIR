@@ -20,26 +20,38 @@ class LZ77 : public AlgsCompression{
 	public:
 		LZ77() {} 
 		LZ77(int len_buffer_in, int len_buffer_out) {
+			__StartTime(__time.init);
 			if(__CheckParam(len_buffer_in) && __CheckParam(len_buffer_out)){
 				__len_buffer_in=len_buffer_in;
 				__len_buffer_out=len_buffer_out;
 			}
 			#ifdef DEBUG
+			std::cout << "-------------CONSTRUCTOR LZ77 START-------------" << std::endl;
 			std::cout << "LEN_IN: " << __len_buffer_in << std::endl;
 			std::cout << "LEN_OUT: " << __len_buffer_out << std::endl;
+			std::cout << "--------------CONSTRUCTOR LZ77 END--------------" << std::endl;
 			#endif
+			__EndTime(__time.init);
 		}
 
 		void init(int len_buffer_in, int len_buffer_out){
 			__StartTime(__time.init);
-			__len_buffer_in=len_buffer_in;
-			__len_buffer_out=len_buffer_out;
+			if(__CheckParam(len_buffer_in) && __CheckParam(len_buffer_out)){
+				__len_buffer_in=len_buffer_in;
+				__len_buffer_out=len_buffer_out;
+			}
+			#ifdef DEBUG
+			std::cout << "----------------INIT  LZ77 START----------------" << std::endl;
+			std::cout << "LEN_IN: " << __len_buffer_in << std::endl;
+			std::cout << "LEN_OUT: " << __len_buffer_out << std::endl;
+			std::cout << "-----------------INIT  LZ77 END-----------------" << std::endl;
+			#endif
 			__EndTime(__time.init);
 		}
 		
         int encode(const std::string& filename_in, const std::string& filename_out) {
 			#ifdef DEBUG
-			std::cout << "-----------START ENCODE-----------" << std::endl;
+			std::cout << "-------------------START  ENCODE-------------------" << std::endl;
 			#endif
 			__StartTime(__time.encode);
 			__SetFileName(__filename.base,filename_in);
@@ -113,14 +125,14 @@ class LZ77 : public AlgsCompression{
 			}
 			__EndTime(__time.encode);
 			#ifdef DEBUG
-			std::cout << "------------END ENCODE------------" << std::endl;
+			std::cout << "--------------------END  ENCODE--------------------" << std::endl;
 			#endif
 			return 0;
 		}
 
         int decode(const std::string& filename_in, const std::string& filename_out) {
 			#ifdef DEBUG
-			std::cout << "-----------START DECODE-----------" << std::endl;
+			std::cout << "-------------------START  DECODE-------------------" << std::endl;
 			#endif
 			__StartTime(__time.decode);
 			__SetFileName(__filename.binary, filename_in);
@@ -146,7 +158,7 @@ class LZ77 : public AlgsCompression{
 						if(*it_out<=13)
 							std::cout << '\'' << (unsigned)(*it_out) << '\'';
 						else
-							std::cout << *it_out;
+							std::cout << (char)(*it_out);
 						#endif
 						buffer_out.append(*it_out); ++it_out;
 					}
@@ -156,19 +168,19 @@ class LZ77 : public AlgsCompression{
 					if(file_in.get_cur_symbol()<=13)
 						std::cout << '\'' << (unsigned)(file_in.get_cur_symbol()) << '\'';
 					else
-						std::cout << file_in.get_cur_symbol();
+						std::cout << (char)(file_in.get_cur_symbol());
 					#endif
 					buffer_out.append(file_in.get_cur_symbol());
 				}
 				#ifdef DEBUG
 				std::cout << std::endl << std::endl;
 				#endif
-				while(buffer_out.size()>__len_buffer_in) file_out.write(buffer_out.pop(0));
+				while(buffer_out.size()>__len_buffer_out) file_out.write(buffer_out.pop(0));
 			}
 			while(buffer_out.size()!=0) file_out.write(buffer_out.pop(0));
 			__EndTime(__time.decode);
 			#ifdef DEBUG
-			std::cout << "------------END DECODE------------" << std::endl;
+			std::cout << "--------------------END  DECODE--------------------" << std::endl;
 			#endif
 			return 0;
 		}

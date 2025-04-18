@@ -138,6 +138,16 @@ class List{
 			__size=0;
 		}
 
+		void clear(){
+			Node *temp=__begin;
+			while(temp!=nullptr){
+				temp=__begin->__right;
+				delete __begin;
+				__begin=temp;
+			}
+			__size=0;
+		}
+
         void show(){
             std::cout << '[';
             int i=0;
