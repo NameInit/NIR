@@ -116,10 +116,12 @@ class LZ77 : public AlgsCompression{
 					if(file_in.get_next_symbol()!=-1) buff_in.append(file_in.get_cur_symbol());
 				}
 				#ifdef DEBUG
-				std::cout << ')' << std::endl << std::endl;
+				std::cout << ')' << std::endl;
 				#ifdef DEBUG_STEP
+				std::cout << "For next step write enter" <<  std::endl;
 				getchar();
 				#endif
+				std::cout << std::endl;
 				#endif
 				while(buff_out.size()>__len_buffer_out) buff_out.pop(0);
 			}

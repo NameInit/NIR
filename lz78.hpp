@@ -64,6 +64,11 @@ class LZ78 : public AlgsCompression{
 				SHOW_MAP(__key_substring);
 				std::cout << std::endl;
 				debug.clear();
+				#ifdef DEBUG_STEP
+				std::cout << "For next step write enter" <<  std::endl;
+				getchar()
+				#endif
+				std::cout << std::endl;
 				#endif
 			}
 
