@@ -8,8 +8,10 @@
 #include "data_io.hpp"
 #include "algs_compression.hpp"
 
+#ifdef DEBUG
 #define SHOW_MAP(mymap) std::set<char> uv{'\n','\r'}; for(auto it=mymap.begin(); it!=mymap.end(); it++) {std::cout << '('; if(uv.find(it->first)!=uv.end()) std::cout<<'\''<<(unsigned)it->first<<'\''; else  std::cout<<it->first;std::cout<< ", " << it->second << ") ";} std::cout << std::endl;
 #define SHOW_VECTOR_NODES(myvector) for(auto it=myvector.begin(); it!=myvector.end(); it++) std::cout<<**it<<' ';std::cout<<std::endl;
+#endif
 
 
 class Huffman : public AlgsCompression{
@@ -150,7 +152,9 @@ class Huffman : public AlgsCompression{
             std::vector<Node*> next_nodes;
             cur_nodes.push_back(__root);
             while(cur_nodes.size()>0){
+                #ifdef DEBUG
                 SHOW_VECTOR_NODES(cur_nodes);
+                #endif
                 for(int i=0; i<cur_nodes.size(); i++)
                     if(cur_nodes[i]->left!=nullptr){
                         next_nodes.push_back(cur_nodes[i]->left);
@@ -249,6 +253,7 @@ class Huffman : public AlgsCompression{
             return done;
         }
 
+        #ifdef DEBUG
         void show_map_code(){
             SHOW_MAP(__symbol_code);
         }
@@ -256,4 +261,5 @@ class Huffman : public AlgsCompression{
         void show_map_frequency(){
             SHOW_MAP(__symbol_frequency);
         }
+        #endif
 };

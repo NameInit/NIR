@@ -19,7 +19,7 @@ debug_step:	main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp data_io.hpp
 	$(COMPILE) $(DEBUG) $(WITH_STEP) main.cpp
 
 memory: main
-	valgrind --leak-check=full ./a.out test1
+	valgrind --leak-check=full make test
 
 clean:
 	rm -rf $(DUMP)

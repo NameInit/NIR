@@ -8,13 +8,12 @@ if [ -d "$DIRECTORY" ]; then
             ./a.out tests/$(basename "$FILE")
             diff tests/$(basename "$FILE") tests/$(basename "$FILE").dec
             
-            # Проверяем статус команды diff
             if [ $? -ne 0 ]; then
                 echo "Файлы $FILE и ${FILE}.dec различаются. Выход из цикла."
-                break  # Выходим из цикла при обнаружении различий
+                break
             fi
             
-            rm tests/*.*
+            rm -f tests/*.dec tests/*.lz* tests/*.huff
         fi
     done
 else

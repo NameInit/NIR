@@ -58,10 +58,17 @@ class DataFile{
             __file.seekp(position, __file.beg);
         }
 
-        void write(unsigned symbol){
+        void write(const unsigned symbol){
             if(!__file.is_open())
                 throw std::logic_error("File is not open");
             __file.put(symbol);
+        }
+
+        void write(const std::string& string){
+            if(!__file.is_open())
+                throw std::logic_error("File is not open");
+            for(char symbol : string)
+                __file.put(symbol);
         }
 
         unsigned size(){

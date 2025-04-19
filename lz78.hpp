@@ -23,12 +23,12 @@ class LZ78 : public AlgsCompression{
             DataFile file_in(filename_in, std::ios::in);
             DataFile file_out(filename_out, std::ios::out | std::ios::binary);
 			std::string substring;
-			unsigned key=1;
-
+			unsigned global_key=1;
+			
 			#ifdef DEBUG
-			List<unsigned> debug;
+			List<unsigned> debug_temp_key;
 			#endif
-
+			
             while(file_in.get_next_symbol()!=-1){
 				unsigned temp_key=0;
 				substring=static_cast<char>(file_in.get_cur_symbol());
@@ -37,33 +37,38 @@ class LZ78 : public AlgsCompression{
 					if(file_in.get_next_symbol()!=-1) substring+=file_in.get_cur_symbol();
 				}
 				if(temp_key==0){
-					__substring_key[substring]=key;
-					__key_substring[key++]=substring;
+					__substring_key[substring]=global_key;
+					__key_substring[global_key++]=substring;
 					file_out.write(temp_key);
 					#ifdef DEBUG
-					debug.append(temp_key);
+					debug_temp_key.append(temp_key);
 					#endif
 				}
 				else{
+					List<unsigned> temp_key_system256;
 					if(file_in.get_cur_symbol()!=-1){
-						__substring_key[substring]=key;
-						__key_substring[key++]=substring;
+						__substring_key[substring]=global_key;
+						__key_substring[global_key++]=substring;
 					}
 					while(temp_key>0){
-						file_out.write(temp_key%256);
+						temp_key_system256.insert(temp_key%256, 0);
 						#ifdef DEBUG
-						debug.append(temp_key%256);
+						debug_temp_key.append(temp_key%256);
 						#endif
 						temp_key/=256;
 					}
+
+					for(auto it : temp_key_system256)
+						file_out.write(it);
+
 				}
 				if(file_in.get_cur_symbol()!=-1) file_out.write(file_in.get_cur_symbol());
 				#ifdef DEBUG
 				std::cout << "SUBSTRING: " << substring << std::endl;
-				std::cout << "KEY: " << debug << "\tLAST CHAR: " << (file_in.get_cur_symbol()!=-1 ? file_in.get_cur_symbol() : -1) << std::endl;
+				std::cout << "KEY: " << debug_temp_key << "\tLAST CHAR: " << (file_in.get_cur_symbol()!=-1 ? file_in.get_cur_symbol() : -1) << std::endl;
 				SHOW_MAP(__key_substring);
 				std::cout << std::endl;
-				debug.clear();
+				debug_temp_key.clear();
 				#ifdef DEBUG_STEP
 				std::cout << "For next step write enter" <<  std::endl;
 				getchar()
@@ -82,6 +87,12 @@ class LZ78 : public AlgsCompression{
 
 			DataFile file_in(filename_in, std::ios::in | std::ios::binary);
 			DataFile file_out(filename_out, std::ios::out);
+
+			unsigned count_digit[2]={1,0}; // [1] is div 256, [2] is mod 256
+
+			while(file_in.get_next_symbol()!=-1){
+				break;
+			}
 
 			__EndTime(__time.decode);
 			return 0;
