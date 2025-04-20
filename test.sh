@@ -13,7 +13,7 @@ if [ -d "$DIRECTORY" ]; then
                 break
             fi
             
-            rm -f tests/*.dec tests/*.lz* tests/*.huff
+            rm -f tests/*.dec tests/*.lz* tests/*.huffman
         fi
     done
 else

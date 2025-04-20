@@ -19,8 +19,8 @@ int main(int argc, char** argv) {
 	// lz77.show_statistic();
 
     Huffman h(argv[1]);
-    h.encode(argv[1], (static_cast<std::string>(argv[1])) + ".huff");
-    h.decode((static_cast<std::string>(argv[1]))  + ".huff", (static_cast<std::string>(argv[1])) + ".dec");
+    h.encode(argv[1], (static_cast<std::string>(argv[1])) + ".huffman");
+    h.decode((static_cast<std::string>(argv[1]))  + ".huffman", (static_cast<std::string>(argv[1])) + ".dec");
     h.show_statistic();
     return 0;
 }
