@@ -118,7 +118,7 @@ class LZ77 : public AlgsCompression{
 				#ifdef DEBUG
 				std::cout << ')' << std::endl;
 				#ifdef DEBUG_STEP
-				std::cout << "For next step write enter" <<  std::endl;
+				std::cout << "Press enter for to proceed to the next step" <<  std::endl;
 				getchar();
 				#endif
 				std::cout << std::endl;
