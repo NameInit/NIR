@@ -8,15 +8,15 @@ int main(int argc, char** argv) {
         return 1;
     }
 
-	LZ78 lz78;
-	lz78.encode(argv[1], (static_cast<std::string>(argv[1])) + ".lz78");
-    lz78.decode((static_cast<std::string>(argv[1])) + ".lz78", (static_cast<std::string>(argv[1])) + ".dec");
-	lz78.show_statistic();
+	// LZ78 lz78;
+	// lz78.encode(argv[1], (static_cast<std::string>(argv[1])) + ".lz78");
+    // lz78.decode((static_cast<std::string>(argv[1])) + ".lz78", (static_cast<std::string>(argv[1])) + ".dec");
+	// lz78.show_statistic();
     
-    LZ77 lz77;
-    lz77.encode(argv[1], (static_cast<std::string>(argv[1])) + ".lz77");
-    lz77.decode((static_cast<std::string>(argv[1])) + ".lz77", (static_cast<std::string>(argv[1])) + ".dec");
-	lz77.show_statistic();
+    // LZ77 lz77;
+    // lz77.encode(argv[1], (static_cast<std::string>(argv[1])) + ".lz77");
+    // lz77.decode((static_cast<std::string>(argv[1])) + ".lz77", (static_cast<std::string>(argv[1])) + ".dec");
+	// lz77.show_statistic();
 
     Huffman h(argv[1]);
     h.encode(argv[1], (static_cast<std::string>(argv[1])) + ".huff");

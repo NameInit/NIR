@@ -21,8 +21,10 @@ class AlgsCompression{
         Times __time;
         Filename __filename;
 
-        void __StartTime(Timer& timer) { timer.set_start(); }
-        void __EndTime(Timer& timer) { timer.set_end(); }
+		void __SleepTime(Timer& timer) { timer.sleep(); }
+		void __UnSleepTime(Timer& timer) { timer.unsleep(); }
+        void __StartTime(Timer& timer) { timer.start(); }
+        void __EndTime(Timer& timer) { timer.end(); }
         void __SetFileName(std::string& old_filename, const std::string& new_filename) { old_filename=new_filename; }
     public:
         virtual ~AlgsCompression() {};
@@ -53,7 +55,7 @@ class AlgsCompression{
 			std::cout << "ARCHIVED FILE: " << __filename.binary << '(' << file_binary.size() << " bytes" <<')' << std::endl;
 			std::cout << "UNZIPPED FILE: " << __filename.unzipped << '(' << file_unzipped.size() << " bytes" <<')' << std::endl << std::endl;
 
-			std::cout << "TIME FOR ARCHIVING: " << __time.decode.duration_s() +  __time.init.duration_s() << 's' << std::endl;
+			std::cout << "TIME FOR ARCHIVING: " << __time.encode.duration_s() +  __time.init.duration_s() << 's' << std::endl;
 			std::cout << "TIME FOR UNZIPPED: " << __time.decode.duration_s() << 's' << std::endl << std::endl;
 
 			std::cout << "COMPRESSION RATIO: " << (double)file_base.size()/(double)file_binary.size() << std::endl;

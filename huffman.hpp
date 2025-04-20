@@ -8,11 +8,6 @@
 #include "data_io.hpp"
 #include "algs_compression.hpp"
 
-#ifdef DEBUG
-#define SHOW_MAP(mymap) std::set<char> uv{'\n','\r'}; for(auto it=mymap.begin(); it!=mymap.end(); it++) {std::cout << '('; if(uv.find(it->first)!=uv.end()) std::cout<<'\''<<(unsigned)it->first<<'\''; else  std::cout<<it->first;std::cout<< ", " << it->second << ") ";} std::cout << std::endl;
-#define SHOW_VECTOR_NODES(myvector) for(auto it=myvector.begin(); it!=myvector.end(); it++) std::cout<<**it<<' ';std::cout<<std::endl;
-#endif
-
 
 class Huffman : public AlgsCompression{
     private:
@@ -121,17 +116,36 @@ class Huffman : public AlgsCompression{
     public:
         Huffman() : __root(nullptr) {}
         Huffman(const std::string& filename) {
+            #ifdef DEBUG
+            std::cout << "-------------------START CONSTRUCTOR NUFFMAN-------------------" << std::endl;
+            #endif
+            
             __StartTime(__time.init);
             __SetFileName(__filename.base, filename);
             __CreateMapSymbolFrequency(filename);
             __BuildTree(__symbol_frequency);
             __CreateMapSymbolCode(__root, "");
             __EndTime(__time.init);
+
+			#ifdef DEBUG
+            std::cout << "MAP {CODE SYMBOL: FREQUENCY}:" << std::endl;
+            for(auto it : __symbol_frequency)
+                std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl; 
+            
+            std::cout << std::endl << "MAP {CODE SYMBOL: CODE BINARY}:" << std::endl;
+			for(auto it : __symbol_code)
+				std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl;
+			
+			std::cout << "------------------END CONSTRUCTOR NUFFMAN------------------" << std::endl;
+            #endif
         }
 
         ~Huffman(){ __DestroyTree(__root); __symbol_code.clear(); __symbol_frequency.clear(); }
 
         void init(const std::string& filename){
+			#ifdef DEBUG
+            std::cout << "--------------------START INIT  NUFFMAN--------------------" << std::endl;
+            #endif
             __StartTime(__time.init);
             __SetFileName(__filename.base, filename);
             if(__root!=nullptr){
@@ -143,6 +157,17 @@ class Huffman : public AlgsCompression{
             __BuildTree(__symbol_frequency);
             __CreateMapSymbolCode(__root, 0);
 			__EndTime(__time.init);
+			#ifdef DEBUG
+            std::cout << "MAP {CODE SYMBOL: FREQUENCY}:" << std::endl;
+            for(auto it : __symbol_frequency)
+                std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl; 
+            
+            std::cout << "MAP {CODE SYMBOL: CODE BINARY}:" << std::endl << std::endl;
+			for(auto it : __symbol_code)
+				std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl << std::endl;
+			
+			std::cout << "---------------------END INIT  NUFFMAN---------------------" << std::endl;
+            #endif
         }
 
         void show_tree(){
@@ -152,9 +177,6 @@ class Huffman : public AlgsCompression{
             std::vector<Node*> next_nodes;
             cur_nodes.push_back(__root);
             while(cur_nodes.size()>0){
-                #ifdef DEBUG
-                SHOW_VECTOR_NODES(cur_nodes);
-                #endif
                 for(int i=0; i<cur_nodes.size(); i++)
                     if(cur_nodes[i]->left!=nullptr){
                         next_nodes.push_back(cur_nodes[i]->left);
@@ -166,10 +188,13 @@ class Huffman : public AlgsCompression{
             return ;
         }
 
-        int encode(const std::string& filename_in, const std::string& filename_out){            
+        int encode(const std::string& filename_in, const std::string& filename_out){
             __StartTime(__time.encode);
 			__SetFileName(__filename.base,filename_in);
 			__SetFileName(__filename.binary,filename_out);
+			#ifdef DEBUG
+			std::cout << "---------------START ENCODE  HUFFMAN---------------" << std::endl;
+			#endif    
 			DataFile file_in(filename_in, std::ios::in);
             DataFile file_out(filename_out, std::ios::out | std::ios::binary);
 
@@ -181,12 +206,35 @@ class Huffman : public AlgsCompression{
             };
             std::string buffer;
 
+			#ifdef DEBUG
+			unsigned num_step=1;
+			#endif
+
             while(file_in.get_next_symbol()!=-1){
+				#ifdef DEBUG
+				std::cout << "NUM STEP" << num_step++ << std::endl;
                 buffer+=__symbol_code[file_in.get_cur_symbol()];
+				std::cout << "CUR CODE CHAR: " << file_in.get_cur_symbol() << std::endl;
+				std::cout << "BINARY CODE CHAR: " << __symbol_code[file_in.get_cur_symbol()] << std::endl;
+				std::cout << "BUFFER: " << buffer << std::endl;
+				#endif
+
                 if(buffer.size()>=8){
                     file_out.write(strbin_to_int(buffer.substr(0,8)));
                     buffer=buffer.substr(8,buffer.size());
-                }
+					#ifdef DEBUG
+					std::cout << "BUFFER HAVE BEEN CROPPED, BUFFER: " << ((buffer.size()!=0) ? buffer : static_cast<std::string>("<void>")) << std::endl; 
+					#endif
+				}
+
+				#ifdef DEBUG
+				#ifdef DEBUG_STEP
+				__SleepTime(__time.encode);
+				std::cout << "Press enter for to proceed to the next step" << std::endl;
+				getchar();
+				__UnSleepTime(__time.encode);
+				#endif
+				#endif
             }
             if(buffer.size()!=0){
                 file_out.write(buffer.size());
@@ -196,6 +244,11 @@ class Huffman : public AlgsCompression{
                 file_out.write(0);
                 file_out.write(0);
             }
+
+			#ifdef DEBUG
+			std::cout << "----------------END ENCODE  HUFFMAN----------------" << std::endl;
+			#endif
+
 			__EndTime(__time.encode);
             return 0;
         }
@@ -204,6 +257,9 @@ class Huffman : public AlgsCompression{
 			__StartTime(__time.decode);
 			__SetFileName(__filename.binary, filename_in);
 			__SetFileName(__filename.unzipped, filename_out);
+			#ifdef DEBUG
+			std::cout << "---------------START DECODE  HUFFMAN---------------" << std::endl;
+			#endif
             DataFile file_in(filename_in, std::ios::in | std::ios::binary);
             DataFile file_out(filename_out, std::ios::out);
 
@@ -219,7 +275,7 @@ class Huffman : public AlgsCompression{
                 return strbin;
             };
             std::string data_file_in;
-            std::string temp_data;
+            std::string temp_code;
             std::map<std::string, unsigned> code_symbol;
             unsigned max_size_code=0;
             unsigned size_file=file_in.size();
@@ -239,27 +295,42 @@ class Huffman : public AlgsCompression{
             }
 
             for(char bit : data_file_in){
-                temp_data+=bit;
-                if(code_symbol.find(temp_data)!=code_symbol.end()){
-                    file_out.write(code_symbol[temp_data]);
-                    temp_data.clear();
+                temp_code+=bit;
+				
+				#ifdef DEBUG
+				std::cout << "NEW BIT: " << bit << std::endl;
+				std::cout << "CURRENT BINARY CODE: " << temp_code << std::endl;
+                #endif
+
+				if(code_symbol.find(temp_code)!=code_symbol.end()){
+					#ifdef DEBUG
+					std::cout << "CODE "<< temp_code <<" HAVE BEEN FOUNDED" << std::endl;
+					std::cout << temp_code << ": " << code_symbol[temp_code] << "(char)" << std::endl;
+					#endif
+                    file_out.write(code_symbol[temp_code]);
+                    temp_code.clear();
                 }
-                else if(temp_data.size()>max_size_code){
+                else if(temp_code.size()>max_size_code){
+					#ifdef DEBUG
+					std::cout << "ERROR DECODE HUFFMAN!!!" << std::endl;
+					#endif 
                     done=1;
                     break;
                 }
+				
+				#ifdef DEBUG
+				#ifdef DEBUG_STEP
+				__SleepTime(__time.decode);
+				std::cout << "Press enter for to proceed to the next step" << std::endl;
+				getchar();
+				__UnSleepTime(__time.decode);
+				#endif
+				#endif
             }
+			#ifdef DEBUG
+			std::cout << "--------------END DECODE  HUFFMAN--------------" << std::endl;
+			#endif
 			__EndTime(__time.decode);
             return done;
         }
-
-        #ifdef DEBUG
-        void show_map_code(){
-            SHOW_MAP(__symbol_code);
-        }
-
-        void show_map_frequency(){
-            SHOW_MAP(__symbol_frequency);
-        }
-        #endif
 };
