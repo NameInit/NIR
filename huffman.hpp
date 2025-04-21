@@ -37,6 +37,7 @@ class Huffman : public AlgsCompression{
 
 		Node *__root;
 		std::map<char, std::string> __symbol_code;
+        std::map<std::string, char> __code_symbol;
 		std::map<char, unsigned> __symbol_frequency;
 
 		void __DestroyTree(Node* node){
@@ -113,7 +114,12 @@ class Huffman : public AlgsCompression{
 				__symbol_frequency[file.get_cur_symbol()]+=1;
 			}
 		}
-	public:
+	
+		void __CreateMapCodeSymbol(){
+			for(auto it : __symbol_code)
+				__code_symbol[it.second]=it.first;
+		}
+    public:
 		Huffman() : __root(nullptr) {}
 		Huffman(const std::string& filename) {
 			#ifdef DEBUG
@@ -125,6 +131,7 @@ class Huffman : public AlgsCompression{
 			__CreateMapSymbolFrequency(filename);
 			__BuildTree(__symbol_frequency);
 			__CreateMapSymbolCode(__root, "");
+			__CreateMapCodeSymbol();
 			__EndTime(__time.init);
 
 			#ifdef DEBUG
@@ -277,15 +284,12 @@ class Huffman : public AlgsCompression{
 			};
 			std::string data_file_in;
 			std::string temp_code;
-			std::map<std::string, unsigned> code_symbol;
 			unsigned max_size_code=0;
 			unsigned size_file=file_in.size();
 			bool done=0;
 
-			for(auto it=__symbol_code.begin(); it!=__symbol_code.end(); it++){
-				code_symbol[it->second]=it->first;
+			for(auto it=__symbol_code.begin(); it!=__symbol_code.end(); it++)
 				max_size_code=(max_size_code<(it->second).size()) ? (it->second).size() : max_size_code;
-			}
 			
 			for(int i=0; i<size_file-2; i++)
 				data_file_in+=int_to_strbin(file_in.get_next_symbol(),8);
@@ -303,12 +307,12 @@ class Huffman : public AlgsCompression{
 				std::cout << "CURRENT BINARY CODE: " << temp_code << std::endl;
 				#endif
 
-				if(code_symbol.find(temp_code)!=code_symbol.end()){
+				if(__code_symbol.find(temp_code)!=__code_symbol.end()){
 					#ifdef DEBUG
 					std::cout << "CODE "<< temp_code <<" HAVE BEEN FOUNDED" << std::endl;
-					std::cout << temp_code << ": " << code_symbol[temp_code] << "(char)" << std::endl;
+					std::cout << temp_code << ": " << __code_symbol[temp_code] << "(char)" << std::endl;
 					#endif
-					file_out.write(code_symbol[temp_code]);
+					file_out.write(__code_symbol[temp_code]);
 					temp_code.clear();
 				}
 				else if(temp_code.size()>max_size_code){
@@ -328,9 +332,11 @@ class Huffman : public AlgsCompression{
 				#endif
 				#endif
 			}
+
 			#ifdef DEBUG
 			std::cout << "--------------END DECODE  HUFFMAN--------------" << std::endl;
 			#endif
+
 			__EndTime(__time.decode);
 			return done;
 		}
