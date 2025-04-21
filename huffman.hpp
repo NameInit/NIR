@@ -37,7 +37,7 @@ class Huffman : public AlgsCompression{
 
 		Node *__root;
 		std::map<char, std::string> __symbol_code;
-        std::map<std::string, char> __code_symbol;
+		std::map<std::string, char> __code_symbol;
 		std::map<char, unsigned> __symbol_frequency;
 
 		void __DestroyTree(Node* node){
@@ -119,7 +119,7 @@ class Huffman : public AlgsCompression{
 			for(auto it : __symbol_code)
 				__code_symbol[it.second]=it.first;
 		}
-    public:
+	public:
 		Huffman() : __root(nullptr) {}
 		Huffman(const std::string& filename) {
 			#ifdef DEBUG
