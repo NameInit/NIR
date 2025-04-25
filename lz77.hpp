@@ -50,12 +50,14 @@ class LZ77 : public AlgsCompression{
 		}
 		
         int encode(const std::string& filename_in, const std::string& filename_out) {
-			#ifdef DEBUG
-			std::cout << "-----------------START ENCODE LZ77-----------------" << std::endl;
-			#endif
 			__StartTime(__time.encode);
 			__SetFileName(__filename.base,filename_in);
 			__SetFileName(__filename.binary,filename_out);
+
+			#ifdef DEBUG
+			std::cout << "-----------------START ENCODE LZ77-----------------" << std::endl;
+			#endif
+			
 			DataFile file_in(filename_in, std::ios::in);
 			DataFile file_out(filename_out, std::ios::out | std::ios::binary);
 			unsigned offset=0;
@@ -127,20 +129,24 @@ class LZ77 : public AlgsCompression{
 				#endif
 				while(buff_out.size()>__len_buffer_out) buff_out.pop(0);
 			}
-			__EndTime(__time.encode);
+			
 			#ifdef DEBUG
 			std::cout << "------------------END ENCODE LZ77------------------" << std::endl;
 			#endif
+			
+			__EndTime(__time.encode);
 			return 0;
 		}
 
         int decode(const std::string& filename_in, const std::string& filename_out) {
-			#ifdef DEBUG
-			std::cout << "-----------------START DECODE LZ77-----------------" << std::endl;
-			#endif
 			__StartTime(__time.decode);
 			__SetFileName(__filename.binary, filename_in);
 			__SetFileName(__filename.unzipped, filename_out);
+			
+			#ifdef DEBUG
+			std::cout << "-----------------START DECODE LZ77-----------------" << std::endl;
+			#endif
+			
 			DataFile file_in(filename_in, std::ios::in | std::ios::binary);
 			DataFile file_out(filename_out, std::ios::out);
 			List<char> buffer_out;
@@ -188,10 +194,12 @@ class LZ77 : public AlgsCompression{
 				while(buffer_out.size()>__len_buffer_out) file_out.write(buffer_out.pop(0));
 			}
 			while(buffer_out.size()!=0) file_out.write(buffer_out.pop(0));
-			__EndTime(__time.decode);
+			
 			#ifdef DEBUG
 			std::cout << "------------------END DECODE LZ77------------------" << std::endl;
 			#endif
+			
+			__EndTime(__time.decode);
 			return 0;
 		}
 };

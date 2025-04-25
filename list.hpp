@@ -30,9 +30,9 @@ class List{
 		}
 
 		Item& operator[](int index){
-			if((index<0 ? -index : index)>=__size)
-				throw std::logic_error("List index out of range");
 			index=index<0 ? __size+index : index;
+			if((index>=__size)||(index<0))
+				throw std::logic_error("List index out of range");
 			Node *temp=__begin;
 			int i=0;
 			while(i++!=index)

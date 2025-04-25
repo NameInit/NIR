@@ -122,39 +122,43 @@ class Huffman : public AlgsCompression{
 	public:
 		Huffman() : __root(nullptr) {}
 		Huffman(const std::string& filename) {
+			__StartTime(__time.init);
+			__SetFileName(__filename.base, filename);
+			
 			#ifdef DEBUG
 			std::cout << "-------------------START CONSTRUCTOR NUFFMAN-------------------" << std::endl;
 			#endif
 			
-			__StartTime(__time.init);
-			__SetFileName(__filename.base, filename);
 			__CreateMapSymbolFrequency(filename);
 			__BuildTree(__symbol_frequency);
 			__CreateMapSymbolCode(__root, "");
 			__CreateMapCodeSymbol();
-			__EndTime(__time.init);
-
+			
 			#ifdef DEBUG
 			std::cout << "MAP {CODE SYMBOL: FREQUENCY}:" << std::endl;
 			for(auto it : __symbol_frequency)
-				std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl; 
+			std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl; 
 			
 			std::cout << std::endl << "MAP {CODE SYMBOL: CODE BINARY}:" << std::endl;
 			for(auto it : __symbol_code)
-				std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl;
+			std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl;
 			
 			std::cout << "------------------END CONSTRUCTOR NUFFMAN------------------" << std::endl;
 			#endif
+
+			__EndTime(__time.init);
 		}
 
-		~Huffman(){ __DestroyTree(__root); __symbol_code.clear(); __symbol_frequency.clear(); }
+		~Huffman(){ __DestroyTree(__root); }
 
 		void init(const std::string& filename){
+			__StartTime(__time.init);
+			__SetFileName(__filename.base, filename);
+
 			#ifdef DEBUG
 			std::cout << "--------------------START INIT  NUFFMAN--------------------" << std::endl;
 			#endif
-			__StartTime(__time.init);
-			__SetFileName(__filename.base, filename);
+
 			if(__root!=nullptr){
 				__DestroyTree(__root); 
 				__symbol_code.clear(); 
@@ -163,18 +167,20 @@ class Huffman : public AlgsCompression{
 			__CreateMapSymbolFrequency(filename);
 			__BuildTree(__symbol_frequency);
 			__CreateMapSymbolCode(__root, 0);
-			__EndTime(__time.init);
+
 			#ifdef DEBUG
 			std::cout << "MAP {CODE SYMBOL: FREQUENCY}:" << std::endl;
 			for(auto it : __symbol_frequency)
-				std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl; 
+			std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl; 
 			
 			std::cout << "MAP {CODE SYMBOL: CODE BINARY}:" << std::endl << std::endl;
 			for(auto it : __symbol_code)
-				std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl << std::endl;
+			std::cout << '{' << static_cast<unsigned>(it.first) << ": " << it.second << '}' << std::endl << std::endl;
 			
 			std::cout << "---------------------END INIT  NUFFMAN---------------------" << std::endl;
 			#endif
+
+			__EndTime(__time.init);
 		}
 
 		void show_tree(){
