@@ -12,6 +12,8 @@ int main(int argc, char** argv) {
 	Deflate deflate(argv[1]);
 	deflate.encode(static_cast<std::string>(argv[1]), static_cast<std::string>(argv[1])+".deflate");
 	deflate.decode(static_cast<std::string>(argv[1])+".deflate", static_cast<std::string>(argv[1])+".dec");
+	// deflate.save_statistic();
+	// deflate.show_history();
 	deflate.show_statistic();
 
 	// LZ78 lz78;
