@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <functional>
 
 #include "list.hpp"
 #include "data_io.hpp"
