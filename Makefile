@@ -1,16 +1,22 @@
 COMPILE=g++ -std=c++11
 DEBUG=-DDEBUG
 WITH_STEP=-DDEBUG_STEP
-DUMP=a.out *.huffman *.lz* *.deflate *.dec tests/*/*.huffman tests/*/*.lz* tests/*/*.deflate tests/*/*.dec tests/*/*/*.huffman tests/*/*/*.lz* tests/*/*/*.deflate tests/*/*/*.dec
+DUMP=logger a.out *.huffman *.lz* *.deflate *.dec tests/*/*.huffman tests/*/*.lz* tests/*/*.deflate tests/*/*.dec tests/*/*/*.huffman tests/*/*/*.lz* tests/*/*/*.deflate tests/*/*/*.dec
+FILES=main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp lz78.hpp deflate.hpp data_io.hpp
 
-main: main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp lz78.hpp deflate.hpp data_io.hpp
+main: $(FILES)
 	$(COMPILE) main.cpp
 
 rebuild: clean main
 	
 
-run:
+run: $(FILES)
 	./a.out tests/repeat_text/alf1_1mb_test
+
+log: $(FILES)
+	rm -f looger
+	touch logger
+	./test.sh 2 alf1 >> logger
 
 test_logic_text:
 	./test.sh 1
@@ -18,10 +24,10 @@ test_logic_text:
 test_repeat_text:
 	./test.sh 2 alf1
 
-debug: main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp lz78.hpp deflate.hpp data_io.hpp
+debug: $(FILES)
 	$(COMPILE) $(DEBUG) main.cpp
 
-debug_step:	main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp lz78.hpp deflate.hpp data_io.hpp
+debug_step:	$(FILES)
 	$(COMPILE) $(DEBUG) $(WITH_STEP) main.cpp
 
 memory: main

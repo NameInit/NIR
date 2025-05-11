@@ -74,7 +74,7 @@ class AlgsCompression{
 			}
 		}
 
-		void show_statistic(){
+		void show_statistic(bool compres = false){
 			auto get_percent_diff_byte_in_files = [](DataFile& file1, DataFile& file2){
 				unsigned count=0;
 				unsigned offset=0;
@@ -91,19 +91,23 @@ class AlgsCompression{
 			DataFile file_base(__filename.base, std::ios::in);
 			DataFile file_binary(__filename.binary, std::ios::in);
 			DataFile file_unzipped(__filename.unzipped, std::ios::in);
-			
-			std::cout << "---------------STATISTIC COMPRESSION---------------" << std::endl;
-			std::cout << "START FILE: " << __filename.base << '(' << file_base.size() << " bytes" <<')' << std::endl;
-			std::cout << "ARCHIVED FILE: " << __filename.binary << '(' << file_binary.size() << " bytes" <<')' << std::endl;
-			std::cout << "UNZIPPED FILE: " << __filename.unzipped << '(' << file_unzipped.size() << " bytes" <<')' << std::endl << std::endl;
+			if(compres){
+				std::cout <<  __time.encode.duration_s() +  __time.init.duration_s() << ' ' << __time.decode.duration_s() << ' ' << __occupied_memory_in_bytes << ' ' << (double)file_base.size()/(double)file_binary.size() << ' ';
+			}			
+			else {
+				std::cout << "---------------STATISTIC COMPRESSION---------------" << std::endl;
+				std::cout << "START FILE: " << __filename.base << '(' << file_base.size() << " bytes" <<')' << std::endl;
+				std::cout << "ARCHIVED FILE: " << __filename.binary << '(' << file_binary.size() << " bytes" <<')' << std::endl;
+				std::cout << "UNZIPPED FILE: " << __filename.unzipped << '(' << file_unzipped.size() << " bytes" <<')' << std::endl << std::endl;
 
-			std::cout << "TIME FOR ARCHIVING: " << __time.encode.duration_s() +  __time.init.duration_s() << 's' << std::endl;
-			std::cout << "TIME FOR UNZIPPED: " << __time.decode.duration_s() << 's' << std::endl << std::endl;
+				std::cout << "TIME FOR ARCHIVING: " << __time.encode.duration_s() +  __time.init.duration_s() << 's' << std::endl;
+				std::cout << "TIME FOR UNZIPPED: " << __time.decode.duration_s() << 's' << std::endl << std::endl;
 
-			std::cout << "USAGE MEMORY: " << __occupied_memory_in_bytes << " bytes" << std::endl << std::endl;
+				std::cout << "USAGE MEMORY: " << __occupied_memory_in_bytes << " bytes" << std::endl << std::endl;
 
-			std::cout << "COMPRESSION RATIO: " << (double)file_base.size()/(double)file_binary.size() << std::endl;
-			std::cout << "INTEGRITY: " << get_percent_diff_byte_in_files(file_base,file_unzipped) << '%' << std::endl;
-			std::cout << "------------------------END------------------------" << std::endl;
+				std::cout << "COMPRESSION RATIO: " << (double)file_base.size()/(double)file_binary.size() << std::endl;
+				std::cout << "INTEGRITY: " << get_percent_diff_byte_in_files(file_base,file_unzipped) << '%' << std::endl;
+				std::cout << "------------------------END------------------------" << std::endl;
+			}
 		}
 };
