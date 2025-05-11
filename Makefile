@@ -3,7 +3,7 @@ DEBUG=-DDEBUG
 WITH_STEP=-DDEBUG_STEP
 DUMP=a.out *.huffman *.lz* *.deflate *.dec tests/*/*.huffman tests/*/*.lz* tests/*/*.deflate tests/*/*.dec tests/*/*/*.huffman tests/*/*/*.lz* tests/*/*/*.deflate tests/*/*/*.dec
 
-main: main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp data_io.hpp
+main: main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp lz78.hpp deflate.hpp data_io.hpp
 	$(COMPILE) main.cpp
 
 rebuild: clean main
@@ -16,12 +16,12 @@ test_logic_text:
 	./test.sh 1
 
 test_repeat_text:
-	./test.sh 2
+	./test.sh 2 alf1
 
-debug: main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp data_io.hpp
+debug: main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp lz78.hpp deflate.hpp data_io.hpp
 	$(COMPILE) $(DEBUG) main.cpp
 
-debug_step:	main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp data_io.hpp
+debug_step:	main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp lz78.hpp deflate.hpp data_io.hpp
 	$(COMPILE) $(DEBUG) $(WITH_STEP) main.cpp
 
 memory: main

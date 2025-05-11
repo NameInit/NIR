@@ -49,10 +49,15 @@ class LZ77 : public AlgsCompression{
 			__EndTime(__time.init);
 		}
 		
-        int encode(const std::string& filename_in, const std::string& filename_out) {
+		int encode(const std::string& filename_in, const std::string& filename_out) {
 			__StartTime(__time.encode);
 			__SetFileName(__filename.base,filename_in);
 			__SetFileName(__filename.binary,filename_out);
+			__IncreaseUsageMemory(sizeof(List<char>)+__len_buffer_in*(sizeof(char)+2*sizeof(char*)));//List<char> buff_in;
+			__IncreaseUsageMemory(sizeof(List<char>)+__len_buffer_out*(sizeof(char)+2*sizeof(char*)));//List<char> buff_out;
+			__IncreaseUsageMemory(sizeof(unsigned)); //offset
+			__IncreaseUsageMemory(sizeof(unsigned)); //len_subject_str
+			__IncreaseUsageMemory(sizeof(char)); //temp_item
 
 			#ifdef DEBUG
 			std::cout << "-----------------START ENCODE LZ77-----------------" << std::endl;
@@ -66,6 +71,9 @@ class LZ77 : public AlgsCompression{
 			List<char> buff_out;
 			auto it_in=buff_in.begin();
 			auto it_out=buff_out.begin();
+
+			__IncreaseUsageMemory(sizeof(it_in)); //it_in
+			__IncreaseUsageMemory(sizeof(it_out)); //it_out
 
 			for(int i=0; (i<__len_buffer_in)&&(file_in.get_next_symbol()!=-1); i++){
 				buff_in.append(file_in.get_cur_symbol());
@@ -138,11 +146,14 @@ class LZ77 : public AlgsCompression{
 			return 0;
 		}
 
-        int decode(const std::string& filename_in, const std::string& filename_out) {
+		int decode(const std::string& filename_in, const std::string& filename_out) {
 			__StartTime(__time.decode);
 			__SetFileName(__filename.binary, filename_in);
 			__SetFileName(__filename.unzipped, filename_out);
-			
+			__IncreaseUsageMemory(sizeof(List<char>)+__len_buffer_out*(sizeof(char)+2*sizeof(char*)));//List<char> buff_out;
+			__IncreaseUsageMemory(sizeof(unsigned)); //offset
+			__IncreaseUsageMemory(sizeof(unsigned)); //len_subject_str
+
 			#ifdef DEBUG
 			std::cout << "-----------------START DECODE LZ77-----------------" << std::endl;
 			#endif
@@ -151,6 +162,9 @@ class LZ77 : public AlgsCompression{
 			DataFile file_out(filename_out, std::ios::out);
 			List<char> buffer_out;
 			auto it_out=buffer_out.begin();
+
+			__IncreaseUsageMemory(sizeof(it_out));
+
 			while(file_in.get_next_symbol()!=-1){
 				unsigned offset = file_in.get_cur_symbol();
 				unsigned len_subject_str = file_in.get_next_symbol();

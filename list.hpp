@@ -148,49 +148,49 @@ class List{
 			__size=0;
 		}
 
-        void show(){
-            std::cout << '[';
-            int i=0;
-            for(Node* it=__begin; it!=nullptr; it=it->__right, i++){
-                std::cout << it->__item ;
-                if((i+1)!=__size) std::cout << ", ";
-            }
-            std::cout<<']'<<std::endl;
-        }
+		void show(){
+			std::cout << '[';
+			int i=0;
+			for(Node* it=__begin; it!=nullptr; it=it->__right, i++){
+				std::cout << it->__item ;
+				if((i+1)!=__size) std::cout << ", ";
+			}
+			std::cout<<']'<<std::endl;
+		}
 
-        class Iterator{
-            private:
-                List<Item> *__list;
-                Node *__node;
+		class Iterator{
+			private:
+				List<Item> *__list;
+				Node *__node;
 
-                Iterator(List<Item> *list, Node *node) : __list(list), __node(node) {}
-            public:
-                using value_type =Item;
-                using reference = value_type&;
+				Iterator(List<Item> *list, Node *node) : __list(list), __node(node) {}
+			public:
+				using value_type =Item;
+				using reference = value_type&;
 
-                Iterator& operator++(){ if(__node!=nullptr) __node=__node->__right; return *this; }
-                Iterator& operator--(){ if(__node!=nullptr) __node=__node->__left; return *this; }
+				Iterator& operator++(){ if(__node!=nullptr) __node=__node->__right; return *this; }
+				Iterator& operator--(){ if(__node!=nullptr) __node=__node->__left; return *this; }
 
-                bool operator!=(const Iterator& other) { return __node!=other.__node; }
-                bool operator==(const Iterator& other) { return __node==other.__node; }
+				bool operator!=(const Iterator& other) { return __node!=other.__node; }
+				bool operator==(const Iterator& other) { return __node==other.__node; }
 
-                reference operator*(){ return __node->__item; }
+				reference operator*(){ return __node->__item; }
 
-                friend List<Item>::Iterator List<Item>::begin();
-                friend List<Item>::Iterator List<Item>::end();
-        };
+				friend List<Item>::Iterator List<Item>::begin();
+				friend List<Item>::Iterator List<Item>::end();
+		};
 
-        Iterator begin(){ return Iterator(this, __begin); }
-        Iterator end(){ return Iterator(this, nullptr); }
+		Iterator begin(){ return Iterator(this, __begin); }
+		Iterator end(){ return Iterator(this, nullptr); }
 
-        friend std::ostream& operator<<(std::ostream& out, const List& other){
-            out << '[';
-            int i=0;
-            for(Node* it=other.__begin; it!=nullptr; it=it->__right, i++){
-                out << it->__item ;
-                if((i+1)!=other.__size) out << ", ";
-            }
-            out<<']';
-            return out;
-        }
+		friend std::ostream& operator<<(std::ostream& out, const List& other){
+			out << '[';
+			int i=0;
+			for(Node* it=other.__begin; it!=nullptr; it=it->__right, i++){
+				out << it->__item ;
+				if((i+1)!=other.__size) out << ", ";
+			}
+			out<<']';
+			return out;
+		}
 };

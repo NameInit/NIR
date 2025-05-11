@@ -42,7 +42,28 @@ class Deflate : public AlgsCompression{
 		unsigned __len_buffer_in=255;
 		unsigned __len_buffer_out=255;
 
+		unsigned __SizeTree(Node* root) {
+			unsigned result = 0;
+
+			std::function<void(Node*)> traversing_tree = [&](Node* node) {
+				if (node == nullptr) {
+					return;
+				}
+
+				result += 1;
+
+				traversing_tree(node->left);
+				traversing_tree(node->right);
+			};
+
+			traversing_tree(root);
+			return result;
+		}
+
 		void __EncodeHuffman(const std::string& filename_in, const std::string& filename_out){
+			__IncreaseUsageMemory(sizeof(std::string)+8); //std::string buffer
+			__IncreaseUsageMemory(sizeof(std::function<unsigned int(const std::string&)>)); //std::function<unsigned int(const std::string&)> strbin_to_int
+
 			DataFile file_in(filename_in, std::ios::in);
 			DataFile file_out(filename_out, std::ios::out | std::ios::binary);
 
@@ -96,6 +117,12 @@ class Deflate : public AlgsCompression{
 		}
 
 		void __EncodeLZ77(const std::string& filename_in, const std::string& filename_out){
+			__IncreaseUsageMemory(sizeof(List<char>)+__len_buffer_in*(sizeof(char)+2*sizeof(char*)));//List<char> buff_in;
+			__IncreaseUsageMemory(sizeof(List<char>)+__len_buffer_out*(sizeof(char)+2*sizeof(char*)));//List<char> buff_out;
+			__IncreaseUsageMemory(sizeof(unsigned)); //offset
+			__IncreaseUsageMemory(sizeof(unsigned)); //len_subject_str
+			__IncreaseUsageMemory(sizeof(char)); //temp_item
+			
 			DataFile file_in(filename_in, std::ios::in | std::ios::binary);
 			DataFile file_out(filename_out, std::ios::out | std::ios::binary);
 			unsigned offset=0;
@@ -104,6 +131,9 @@ class Deflate : public AlgsCompression{
 			List<char> buff_out;
 			auto it_in=buff_in.begin();
 			auto it_out=buff_out.begin();
+
+			__IncreaseUsageMemory(sizeof(it_in)); //it_in
+			__IncreaseUsageMemory(sizeof(it_out)); //it_out
 
 			for(int i=0; (i<__len_buffer_in)&&(file_in.get_next_symbol()!=-1); i++){
 				buff_in.append(file_in.get_cur_symbol());
@@ -170,6 +200,9 @@ class Deflate : public AlgsCompression{
 		}
 
 		void __DecodeHuffman(const std::string& filename_in, const std::string& filename_out){
+			__IncreaseUsageMemory(sizeof(std::string)+16); //std::string data_file_in
+			__IncreaseUsageMemory(sizeof(std::string)+8); //auto int_to_strbin = [](unsigned num, unsigned count_bit)
+
 			DataFile file_in(filename_in, std::ios::in | std::ios::binary);
 			DataFile file_out(filename_out, std::ios::out);
 
@@ -237,10 +270,17 @@ class Deflate : public AlgsCompression{
 		}
 
 		void __DecodeLZ77(const std::string& filename_in, const std::string& filename_out){
+			__IncreaseUsageMemory(sizeof(List<char>)+__len_buffer_out*(sizeof(char)+2*sizeof(char*)));//List<char> buff_out;
+			__IncreaseUsageMemory(sizeof(unsigned)); //offset
+			__IncreaseUsageMemory(sizeof(unsigned)); //len_subject_str
+			
 			DataFile file_in(filename_in, std::ios::in | std::ios::binary);
 			DataFile file_out(filename_out, std::ios::out | std::ios::binary);
 			List<char> buffer_out;
 			auto it_out=buffer_out.begin();
+			
+			__IncreaseUsageMemory(sizeof(it_out));
+
 			while(file_in.get_next_symbol()!=-1){
 				unsigned offset = file_in.get_cur_symbol();
 				unsigned len_subject_str = file_in.get_next_symbol();
@@ -388,6 +428,10 @@ class Deflate : public AlgsCompression{
 		__BuildTree(__symbol_frequency);
 		__CreateMapSymbolCode(__root, "");
 		__CreateMapCodeSymbol();
+		__CalcMemoryMap(__symbol_code);
+		__CalcMemoryMap(__code_symbol);
+		__CalcMemoryMap(__symbol_frequency);
+		__IncreaseUsageMemory(sizeof(Node*)*__SizeTree(__root)); //BTree
 		
 		#ifdef DEBUG
 		std::cout << "LEN_IN: " << __len_buffer_in << std::endl;
@@ -430,6 +474,10 @@ class Deflate : public AlgsCompression{
 		__CreateMapSymbolFrequency(filename);
 		__BuildTree(__symbol_frequency);
 		__CreateMapSymbolCode(__root, 0);
+		__CalcMemoryMap(__symbol_code);
+		__CalcMemoryMap(__code_symbol);
+		__CalcMemoryMap(__symbol_frequency);
+		__IncreaseUsageMemory(sizeof(Node*)*__SizeTree(__root)); //BTree
 		
 		#ifdef DEBUG
 		std::cout << "LEN_IN: " << __len_buffer_in << std::endl;

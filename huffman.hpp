@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <set>
+#include <functional>
 
 #include "data_io.hpp"
 #include "algs_compression.hpp"
@@ -39,6 +40,24 @@ class Huffman : public AlgsCompression{
 		std::map<char, std::string> __symbol_code;
 		std::map<std::string, char> __code_symbol;
 		std::map<char, unsigned> __symbol_frequency;
+
+		unsigned __SizeTree(Node* root) {
+			unsigned result = 0;
+
+			std::function<void(Node*)> traversing_tree = [&](Node* node) {
+				if (node == nullptr) {
+					return;
+				}
+
+				result += 1;
+
+				traversing_tree(node->left);
+				traversing_tree(node->right);
+			};
+
+			traversing_tree(root);
+			return result;
+		}
 
 		void __DestroyTree(Node* node){
 			if(node!=nullptr){
@@ -133,7 +152,11 @@ class Huffman : public AlgsCompression{
 			__BuildTree(__symbol_frequency);
 			__CreateMapSymbolCode(__root, "");
 			__CreateMapCodeSymbol();
-			
+			__CalcMemoryMap(__symbol_code);
+			__CalcMemoryMap(__code_symbol);
+			__CalcMemoryMap(__symbol_frequency);
+			__IncreaseUsageMemory(sizeof(Node*)*__SizeTree(__root)); //BTree
+
 			#ifdef DEBUG
 			std::cout << "MAP {CODE SYMBOL: FREQUENCY}:" << std::endl;
 			for(auto it : __symbol_frequency)
@@ -167,6 +190,10 @@ class Huffman : public AlgsCompression{
 			__CreateMapSymbolFrequency(filename);
 			__BuildTree(__symbol_frequency);
 			__CreateMapSymbolCode(__root, 0);
+			__CalcMemoryMap(__symbol_code);
+			__CalcMemoryMap(__code_symbol);
+			__CalcMemoryMap(__symbol_frequency);
+			__IncreaseUsageMemory(sizeof(Node*)*__SizeTree(__root)); //BTree
 
 			#ifdef DEBUG
 			std::cout << "MAP {CODE SYMBOL: FREQUENCY}:" << std::endl;
@@ -205,13 +232,17 @@ class Huffman : public AlgsCompression{
 			__StartTime(__time.encode);
 			__SetFileName(__filename.base,filename_in);
 			__SetFileName(__filename.binary,filename_out);
+			__IncreaseUsageMemory(sizeof(std::string)+8); //std::string buffer
+			__IncreaseUsageMemory(sizeof(std::function<unsigned int(const std::string&)>)); //std::function<unsigned int(const std::string&)> strbin_to_int
+
 			#ifdef DEBUG
 			std::cout << "---------------START ENCODE  HUFFMAN---------------" << std::endl;
 			#endif	
+
 			DataFile file_in(filename_in, std::ios::in);
 			DataFile file_out(filename_out, std::ios::out | std::ios::binary);
 
-			auto strbin_to_int = [](const std::string& str){
+			std::function<unsigned int(const std::string&)> strbin_to_int = [](const std::string& str){
 				unsigned num=0; 
 				for(char symbol : str)
 					num=num*2+(symbol=='1');
@@ -271,9 +302,13 @@ class Huffman : public AlgsCompression{
 			__StartTime(__time.decode);
 			__SetFileName(__filename.binary, filename_in);
 			__SetFileName(__filename.unzipped, filename_out);
+			__IncreaseUsageMemory(sizeof(std::string)+16); //std::string data_file_in
+			__IncreaseUsageMemory(sizeof(std::string)+8); //auto int_to_strbin = [](unsigned num, unsigned count_bit)
+
 			#ifdef DEBUG
 			std::cout << "---------------START DECODE  HUFFMAN---------------" << std::endl;
 			#endif
+
 			DataFile file_in(filename_in, std::ios::in | std::ios::binary);
 			DataFile file_out(filename_out, std::ios::out);
 

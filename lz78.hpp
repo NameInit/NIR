@@ -7,9 +7,9 @@
 #include <map>
 
 class LZ78 : public AlgsCompression{
-    private:
-        std::map<unsigned, std::string> __key_substring;
-        std::map<std::string, unsigned> __substring_key;
+	private:
+		std::map<unsigned, std::string> __key_substring;
+		std::map<std::string, unsigned> __substring_key;
 
 		unsigned __GetLenNumIn256sc(unsigned number){
 			if(number==0)
@@ -21,18 +21,21 @@ class LZ78 : public AlgsCompression{
 				}
 				return ans;
 		}
-    public:
-        int encode(const std::string& filename_in, const std::string& filename_out) {
-            __StartTime(__time.encode);
-            __SetFileName(__filename.base,filename_in);
+	public:
+		int encode(const std::string& filename_in, const std::string& filename_out) {
+			__StartTime(__time.encode);
+			__SetFileName(__filename.base,filename_in);
 			__SetFileName(__filename.binary,filename_out);
-
+			__IncreaseUsageMemory(sizeof(unsigned)); //global_key
+			__IncreaseUsageMemory(sizeof(unsigned)); //count_iterations
+			__IncreaseUsageMemory(sizeof(unsigned)); //temp_key
+						
 			#ifdef DEBUG
 			std::cout << "-----------------START ENCODE LZ78-----------------" << std::endl;
 			#endif
 
-            DataFile file_in(filename_in, std::ios::in);
-            DataFile file_out(filename_out, std::ios::out | std::ios::binary);
+			DataFile file_in(filename_in, std::ios::in);
+			DataFile file_out(filename_out, std::ios::out | std::ios::binary);
 			std::string substring;
 			unsigned global_key=1;
 			unsigned count_iterations=0;
@@ -42,7 +45,7 @@ class LZ78 : public AlgsCompression{
 			unsigned num_step=1;
 			#endif
 
-            while(file_in.get_next_symbol()!=-1){
+			while(file_in.get_next_symbol()!=-1){
 				unsigned temp_key=0;
 				substring=static_cast<char>(file_in.get_cur_symbol());
 				while((__substring_key.find(substring)!=__substring_key.end())&&(file_in.get_cur_symbol()!=-1)){
@@ -63,6 +66,8 @@ class LZ78 : public AlgsCompression{
 					temp_key/=256;
 				}
 				
+				__CalcMemoryList(temp_key_system256); //List<unsigned> temp_key_system256;
+
 				#ifdef DEBUG
 				std::cout << '[';
 				#endif
@@ -109,15 +114,19 @@ class LZ78 : public AlgsCompression{
 			std::cout << "------------------END ENCODE LZ78------------------" << std::endl;
 			#endif
 
-            __EndTime(__time.encode);
-            return 0;
-        }
+			__EndTime(__time.encode);
+			return 0;
+		}
 
 
-        int decode(const std::string& filename_in, const std::string& filename_out) {
-            __StartTime(__time.decode);
+		int decode(const std::string& filename_in, const std::string& filename_out) {
+			__StartTime(__time.decode);
 			__SetFileName(__filename.binary, filename_in);
 			__SetFileName(__filename.unzipped, filename_out);
+			__CalcMemoryMap(__key_substring); //__key_substring
+			__CalcMemoryMap(__substring_key); //__substring_key
+			__IncreaseUsageMemory(sizeof(unsigned)); //count_iterations
+			__IncreaseUsageMemory(sizeof(unsigned)); //temp_key
 
 			#ifdef DEBUG
 			std::cout << "-----------------START DECODE LZ78-----------------" << std::endl;
@@ -171,5 +180,5 @@ class LZ78 : public AlgsCompression{
 
 			__EndTime(__time.decode);
 			return 0;
-        }
+		}
 };
