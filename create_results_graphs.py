@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 files = ["results_logic_text.txt","results_repeat_text_alf1.txt","results_repeat_text_alf5.txt","results_repeat_text_alf10.txt","results_repeat_text_alf15.txt","results_repeat_text_alf20.txt","results_repeat_text_alf26.txt","results_repeat_text_alf59.txt","results_repeat_text_alf118.txt", "results_repeat_text_alf158.txt"]
-dir="results/"
+dir="results/txt_res/"
 files=[dir+file for file in files]
 
 for file in files:
