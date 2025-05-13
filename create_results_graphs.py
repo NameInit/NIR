@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 
 files = ["results_logic_text.txt","results_repeat_text_alf1.txt","results_repeat_text_alf5.txt","results_repeat_text_alf10.txt","results_repeat_text_alf15.txt","results_repeat_text_alf20.txt","results_repeat_text_alf26.txt","results_repeat_text_alf59.txt","results_repeat_text_alf118.txt", "results_repeat_text_alf158.txt"]
 dir="results/txt_res/"
+keys=["t_arch", "t_unz", "memory", "coef"]
 files=[dir+file for file in files]
 
 for file in files:
@@ -37,26 +38,17 @@ for file in files:
 
     with open(file, 'r') as results_logic_text:
         for line in results_logic_text:
+            index: int = 2
             temp_line=line.strip().split()
             temp_line=[item for item in temp_line if len(item)!=0]
             text["num"].append(int(temp_line[0]))
             text["size"].append(int(temp_line[1]))
-            huffman["t_arch"].append(float(temp_line[2]))
-            huffman["t_unz"].append(float(temp_line[3]))
-            huffman["memory"].append(float(temp_line[4]))
-            huffman["coef"].append(float(temp_line[5]))
-            lz77["t_arch"].append(float(temp_line[6]))
-            lz77["t_unz"].append(float(temp_line[7]))
-            lz77["memory"].append(float(temp_line[8]))
-            lz77["coef"].append(float(temp_line[9]))
-            lz78["t_arch"].append(float(temp_line[10]))
-            lz78["t_unz"].append(float(temp_line[11]))
-            lz78["memory"].append(float(temp_line[12]))
-            lz78["coef"].append(float(temp_line[13]))
-            deflate["t_arch"].append(float(temp_line[14]))
-            deflate["t_unz"].append(float(temp_line[15]))
-            deflate["memory"].append(float(temp_line[16]))
-            deflate["coef"].append(float(temp_line[17]))
+            for key in keys:
+                huffman[key].append(float(temp_line[index]))
+                lz77[key].append(float(temp_line[index+4]))
+                lz78[key].append(float(temp_line[index + 4*2]))
+                deflate[key].append(float(temp_line[index+4*3]))
+                index+=1
 
     def show_graph(ax, key, *, title="Undefined", xlabel="Undefined", ylabel="Undefined", log_scale=False):
         ax.plot(text["size"], huffman[key], label="HUFFMAN", color='blue', marker='o', linestyle='-')
