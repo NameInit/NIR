@@ -1,8 +1,5 @@
 #pragma once
 
-#include <iostream>
-#include <map>
-#include <vector>
 #include <set>
 #include <functional>
 
@@ -145,7 +142,7 @@ class Huffman : public AlgsCompression{
 			__SetFileName(__filename.base, filename);
 			
 			#ifdef DEBUG
-			std::cout << "-------------------START CONSTRUCTOR NUFFMAN-------------------" << std::endl;
+			std::cout << "-----------------START CONSTRUCTOR NUFFMAN-----------------" << std::endl;
 			#endif
 			
 			__CreateMapSymbolFrequency(filename);

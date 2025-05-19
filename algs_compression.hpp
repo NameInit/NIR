@@ -2,9 +2,9 @@
 
 #include <iostream>
 #include <vector>
-#include <vector>
 #include <map>
 #include <utility>
+#include <cstring>
 #include "timer.hpp"
 #include "data_io.hpp"
 #include "list.hpp"

@@ -4,7 +4,6 @@
 #include "algs_compression.hpp"
 #include "data_io.hpp"
 #include "list.hpp"
-#include <map>
 
 class LZ78 : public AlgsCompression{
 	private:
@@ -117,7 +116,6 @@ class LZ78 : public AlgsCompression{
 			__EndTime(__time.encode);
 			return 0;
 		}
-
 
 		int decode(const std::string& filename_in, const std::string& filename_out) {
 			__StartTime(__time.decode);

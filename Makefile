@@ -1,7 +1,7 @@
 COMPILE=g++ -std=c++11
 DEBUG=-DDEBUG
 WITH_STEP=-DDEBUG_STEP
-DUMP=logger a.out *.huffman *.lz* *.deflate *.dec tests/*/*.huffman tests/*/*.lz* tests/*/*.deflate tests/*/*.dec tests/*/*/*.huffman tests/*/*/*.lz* tests/*/*/*.deflate tests/*/*/*.dec
+DUMP=logger a.out *.huffman *.lz* *.myalgs *.optlz* *.deflate *.dec tests/*/*.huffman tests/*/*.myalgs tests/*/*.lz* tests/*/*.optlz* tests/*/*.deflate tests/*/*.dec tests/*/*/*.huffman tests/*/*/*.myalgs tests/*/*/*.lz* tests/*/*/*.optlz* tests/*/*/*.deflate tests/*/*/*.dec
 FILES=main.cpp list.hpp timer.hpp huffman.hpp lz77.hpp lz78.hpp deflate.hpp data_io.hpp
 
 main: $(FILES)

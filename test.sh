@@ -20,7 +20,7 @@ if [ -d "$DIRECTORY" ]; then
 				break
 			fi
 			
-			rm -f $DIRECTORY/*.dec $DIRECTORY/*.lz* $DIRECTORY/*.huffman $DIRECTORY/*.deflate
+			rm -f $DIRECTORY/*.dec $DIRECTORY/*.lz* $DIRECTORY/*.myalgs $DIRECTORY/*.optlz* $DIRECTORY/*.huffman $DIRECTORY/*.deflate
 		fi
 	done
 else

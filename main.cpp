@@ -2,6 +2,7 @@
 #include "lz77.hpp"
 #include "lz78.hpp"
 #include "deflate.hpp"
+#include "my_algs.hpp"
 
 int main(int argc, char** argv) {
 	if (argc < 2) {
@@ -29,6 +30,15 @@ int main(int argc, char** argv) {
 	deflate.decode(static_cast<std::string>(argv[1])+".deflate", static_cast<std::string>(argv[1])+".dec");
 	deflate.show_statistic(true);
 
+	LZ77 optlz77;
+	optlz77.optimaze_encode(static_cast<std::string>(argv[1]), static_cast<std::string>(argv[1])+".optlz77");
+	optlz77.optimaze_decode(static_cast<std::string>(argv[1])+".optlz77", static_cast<std::string>(argv[1])+".dec");
+	optlz77.show_statistic(true);
+
+	MyAlgs myalgs(argv[1]);
+	myalgs.encode(static_cast<std::string>(argv[1]), static_cast<std::string>(argv[1])+".myalgs");
+	myalgs.decode(static_cast<std::string>(argv[1])+".myalgs", static_cast<std::string>(argv[1])+".dec");
+	myalgs.show_statistic(true);
 	std::cout << std::endl;
 	return 0;
 }
